@@ -46,10 +46,8 @@ public class TableBills_MySQL {
     
     public static void insert(FacturaDTO dto){
         String query = QUERYINSERTINTO+TABLENAME;
-        //query += " (ID, FechaHora, TiempoPermanencia_Min, Identifier, Turno, Consumo) VALUES (";
         query += " (ID, TiempoPermanencia_Min, Identifier, Turno, Consumo) VALUES (";
         query += dto.getID() + ", '";
-        //query += "NOW()', ";
         query += (dto.getDuracion())/(60000)+ "', '";
         query += dto.getIdentifier()+ "', ";
         query += String.valueOf(dto.getTurno())+ ", ";

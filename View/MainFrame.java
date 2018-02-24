@@ -8,6 +8,7 @@ package View;
 import Controller.DataBase.IDataBase;
 import View._2Inventario.InventarioPanel;
 import View._1Pedidos.PedidosPanel;
+import View._3Personal.PersonalPanel;
 import View._4Ventas.VentasPanel;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -48,7 +49,7 @@ public class MainFrame extends javax.swing.JFrame{
     private PedidosPanel panelPedidos;
     private InventarioPanel panelInventario;
     private VentasPanel panelVentas;
-    //private PersonalPanel panelPersonal;
+    private PersonalPanel panelPersonal;
     //private EstadisticasPanel panelEstadisticas;
     
     private void configureFrame(){
@@ -64,20 +65,20 @@ public class MainFrame extends javax.swing.JFrame{
         mainPanel           = new JPanel();                     mainPanel.setLayout(null);
         panelPedidos        = new PedidosPanel(this);           panelPedidos.setLayout(null);
         panelInventario     = new InventarioPanel(this);     panelInventario.setLayout(null);
-      //panelPersonal       = new PersonalPanel(this,db);       panelPersonal.setLayout(null);
+        panelPersonal       = new PersonalPanel(this);       panelPersonal.setLayout(null);
         panelVentas         = new VentasPanel();                panelVentas.setLayout(null);
       //panelEstadisticas   = new EstadisticasPanel(this,db)    panelEstadisticas.setLayout(null);
         
         this.add(mainPanel); 
         this.add(panelPedidos); 
         this.add(panelInventario);
-      //this.add(panelPersonal);
+        this.add(panelPersonal);
         this.add(panelVentas);
       //this.add(panelEstadisticas);
         
         panelPedidos.setBounds      (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
         panelInventario.setBounds   (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
-      //panelPersonal.setBounds     (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
+        panelPersonal.setBounds     (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
         panelVentas.setBounds       (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
       //panelEstadisticas.setBounds (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
         mainPanel.setBounds         (   this.horizontalSeparation   ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
@@ -95,7 +96,7 @@ public class MainFrame extends javax.swing.JFrame{
                 panelInventario.setVisible(true);
                 break;
             case 3:
-                //panelPersonal.setVisible(true);
+                panelPersonal.setVisible(true);
                 break;
             case 4:
                 panelVentas.setVisible(true);
@@ -133,7 +134,7 @@ public class MainFrame extends javax.swing.JFrame{
         btnConfiguracion.setBounds  (initialX, initialY+(5*spaceY), width, height);
         btnPedidos.setEnabled(true);
         btnInventario.setEnabled(true);
-        btnPersonal.setEnabled(false);
+        btnPersonal.setEnabled(true);
         btnVentas.setEnabled(true);
         btnEstadisticas.setEnabled(false);
         btnConfiguracion.setEnabled(false);

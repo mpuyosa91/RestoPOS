@@ -17,7 +17,7 @@ import Controller.DataBase.DBDataHandler;
 import Model.DataTransferObjects.Bills.FacturaDTO;
 import Model.DataTransferObjects.ConfigurationDTO;
 import Model.DataTransferObjects.SellBase.DeInventario;
-import Model.ErrorReport;
+import Controller.Surveillance.SurveillanceReport;
 import View.WindowConsole;
 import java.util.Calendar;
 
@@ -116,10 +116,10 @@ public class DB_PostgreSQL implements DBDataHandler{
                         r_stmt.execute(QUERYCREATEDB);
                         WindowConsole.print("         Database CREATED.\n");
                         return r_stmt;
-                    } catch (SQLException ex1) { ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,QUERYCREATEDB); }
-                } else ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
+                    } catch (SQLException ex1) { SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,QUERYCREATEDB); }
+                } else SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
             }   
-        } catch (SQLException ex) { ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex); }   
+        } catch (SQLException ex) { SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex); }   
         return null;
     }    
 

@@ -5,8 +5,8 @@
  */
 package restopos;
 
+import Controller.Surveillance.SurveillanceReport;
 import View.MainFrame;
-import View.WindowConsole;
 import View._1Pedidos.Mesas.PedidosFrame;
 import javax.swing.JOptionPane;
 
@@ -38,7 +38,7 @@ public class Restopos {
             }   
         }while (!started);
         java.awt.EventQueue.invokeLater(() ->{
-            WindowConsole.show();
+            SurveillanceReport.EXITONERROR=false;
             MainFrame window = new MainFrame();
             window.repaint();
         });

@@ -11,7 +11,7 @@ import Model.DataTransferObjects.SellBase.IInventariable;
 import Model.DataTransferObjects.SellBase.IngredienteDTO;
 import Model.DataTransferObjects.SellBase.ProductoDTO;
 import Model.DataTransferObjects.SellBase.SubProductoDTO;
-import Model.ErrorReport;
+import Controller.Surveillance.SurveillanceReport;
 import View.WindowConsole;
 import static java.lang.Math.floor;
 import static java.lang.Math.log10;
@@ -39,7 +39,7 @@ public class TableTreeElements_PostgreSQL {
                 WindowConsole.print("          Attempting to create Table->\"" + TABLENAME + "\" in DB->\"" + DBNAME + "\"... \n");
                 createTableInServer();
                 return getAndLoadModel();
-            } else ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
+            } else SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
         }
         return false;
     }
@@ -66,7 +66,7 @@ public class TableTreeElements_PostgreSQL {
             STMT.execute(query);
             if (showMesgSys) System.out.println(query);
         } catch (SQLException ex) {
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
 
@@ -86,7 +86,7 @@ public class TableTreeElements_PostgreSQL {
             STMT.execute(query);
             if (showMesgSys) System.out.println(query);
         } catch (SQLException ex) {
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
 
@@ -117,7 +117,7 @@ public class TableTreeElements_PostgreSQL {
             if (showMesgSys) System.out.println(query);
             WindowConsole.print("          ... Status of table \"" + TABLENAME + "\" creation, CREATED.\n");
         } catch (SQLException ex) {
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
 

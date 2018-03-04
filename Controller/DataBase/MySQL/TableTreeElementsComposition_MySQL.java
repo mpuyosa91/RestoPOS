@@ -17,7 +17,7 @@ import Model.DataTransferObjects.SellBase.IRetainerSubProducto;
 import Model.DataTransferObjects.SellBase.IngredienteDTO;
 import Model.DataTransferObjects.SellBase.ProductoDTO;
 import Model.DataTransferObjects.SellBase.SubProductoDTO;
-import Model.ErrorReport;
+import Controller.Surveillance.SurveillanceReport;
 import View.WindowConsole;
 import static java.lang.Math.floor;
 import static java.lang.Math.log10;
@@ -50,7 +50,7 @@ public class TableTreeElementsComposition_MySQL {
                 createTable();
                 r = getAndLoadModelComposition();
             }
-            else ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
+            else SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
         }
         return r;
     }
@@ -71,7 +71,7 @@ public class TableTreeElementsComposition_MySQL {
                     if (showMesgSys) System.out.println(query);
                 }
                 catch(SQLException ex){
-                    ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+                    SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
                 }
             });
         }
@@ -90,7 +90,7 @@ public class TableTreeElementsComposition_MySQL {
                     if (showMesgSys) System.out.println(query);
                 }
                 catch(SQLException ex){
-                    ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+                    SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
                 }
             });
         }
@@ -104,7 +104,7 @@ public class TableTreeElementsComposition_MySQL {
             if (showMesgSys) System.out.println(query);
         }
         catch (SQLException ex){
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
     
@@ -130,7 +130,7 @@ public class TableTreeElementsComposition_MySQL {
             STMT.execute(query);
             if (showMesgSys) System.out.println(query);
         } catch (SQLException ex){
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
         return query;
     }

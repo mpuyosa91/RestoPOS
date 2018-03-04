@@ -13,7 +13,7 @@ import Model.DataTransferObjects.SellBase.ISellable;
 import Model.DataTransferObjects.SellBase.IngredienteDTO;
 import Model.DataTransferObjects.SellBase.ProductoDTO;
 import Model.DataTransferObjects.SellBase.SubProductoDTO;
-import Model.ErrorReport;
+import Controller.Surveillance.SurveillanceReport;
 import View.WindowConsole;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -57,7 +57,7 @@ public class TableBills_MySQL {
             if (showMesgSys) System.out.println(query);
         }
         catch(SQLException ex){
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
         dto.getProductoList().stream().map((producto) -> {            
             String query2 = QUERYINSERTINTO+TABLECONTENTNAME;
@@ -73,7 +73,7 @@ public class TableBills_MySQL {
                 if (showMesgSys) System.out.println(query2);
             }
             catch(SQLException ex){
-                ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query2);
+                SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query2);
             }
         });     
     }
@@ -108,7 +108,7 @@ public class TableBills_MySQL {
                 getAndLoadDayBills();
             }
             else{ 
-                ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex, query); 
+                SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex, query); 
             }
         }
         FacturaDTO aux = facturaDTO;
@@ -134,7 +134,7 @@ public class TableBills_MySQL {
             WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED.\n");
         }
         catch (SQLException ex){
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
         query =  QUERYCREATETABLE.concat(TABLECONTENTNAME+" ( "
                         + "ID serial, "
@@ -148,7 +148,7 @@ public class TableBills_MySQL {
             WindowConsole.print("          ... Creationg of Table \""+TABLECONTENTNAME+"\" CREATED.\n");
         }
         catch (SQLException ex){
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
     
@@ -187,7 +187,7 @@ public class TableBills_MySQL {
             }
         }
         catch (SQLException ex1){
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,query);
         }
     }
     

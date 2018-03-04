@@ -16,7 +16,7 @@ import Controller.DataBase.DBDataHandler;
 import Model.DataTransferObjects.Bills.FacturaDTO;
 import Model.DataTransferObjects.ConfigurationDTO;
 import Model.DataTransferObjects.SellBase.DeInventario;
-import Model.ErrorReport;
+import Controller.Surveillance.SurveillanceReport;
 import View.WindowConsole;
 import java.util.Calendar;
 
@@ -94,7 +94,7 @@ public class DB_MySQL implements DBDataHandler{
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException ex) {
-            ErrorReport.generic(Thread.currentThread().getStackTrace(), ex);
+            SurveillanceReport.generic(Thread.currentThread().getStackTrace(), ex);
         }
         try{
             WindowConsole.print("     Checking connection with server...\n");
@@ -113,10 +113,10 @@ public class DB_MySQL implements DBDataHandler{
                         r_stmt.execute(QUERYCREATEDB);
                         WindowConsole.print("         Database CREATED.\n");
                         return createStatement();
-                    } catch (SQLException ex1) { ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,QUERYCREATEDB); }
-                } else ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
+                    } catch (SQLException ex1) { SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,QUERYCREATEDB); }
+                } else SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
             }   
-        } catch (SQLException ex) { ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex); }   
+        } catch (SQLException ex) { SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex); }   
         return null;
     }    
    

@@ -5,6 +5,7 @@
  */
 package restopos;
 
+import Controller.Surveillance.SurveillanceReport;
 import View.MainFrame;
 import View.WindowConsole;
 import View._1Pedidos.Mesas.PedidosFrame;
@@ -14,22 +15,21 @@ import javax.swing.JOptionPane;
  *
  * @author MoisesE
  */
-public class TesterConsole {
+public class TestingMode {
  /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        /*
-        boolean started;
+        boolean started = false;
         do{
             try {
                 for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                     if ("Nimbus".equals(info.getName())) {
                         javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                        started = true;
                         break;
                     }
                 }
-                started = true;
             } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
                 String mess = "Ha Ocurrido un error Iniciando el programa: \n";
                 mess += "Error: "+ex.getMessage();
@@ -38,24 +38,11 @@ public class TesterConsole {
                 java.util.logging.Logger.getLogger(PedidosFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
             }   
         }while (!started);
-                
-        Thread consistentModule = new Thread(() -> {
-            WindowConsole.print("\n");
-            WindowConsole.showAlways();
-        });
-        Thread module = new Thread(() -> {
-            MainFrame window;
-            window = new MainFrame();
-            WindowConsole.hide();
-            consistentModule.interrupt();
+        java.awt.EventQueue.invokeLater(() ->{
+            SurveillanceReport.EXITONERROR=true;
+            WindowConsole.show();
+            MainFrame window = new MainFrame();
             window.repaint();
         });
-        java.awt.EventQueue.invokeLater(() ->{
-            consistentModule.start();
-        });
-        java.awt.EventQueue.invokeLater(() ->{
-            module.start();        
-        });
-        */
-    }   
+    }  
 }

@@ -7,7 +7,7 @@ package Controller.DataBase.PostgreSQL;
 
 import Controller.DataBase.IDataBase;
 import Model.DataTransferObjects.ConfigurationDTO;
-import Model.ErrorReport;
+import Controller.Surveillance.SurveillanceReport;
 import View.WindowConsole;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -44,7 +44,7 @@ public class TableConfiguration_PostgreSQL {
             }
             else{
                 String query = QUERYSELECTFROM;
-                ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+                SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
             }
         }
         return false;
@@ -67,7 +67,7 @@ public class TableConfiguration_PostgreSQL {
             if (showMesgSys) System.out.println(query);
         }
         catch (SQLException ex){
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
     
@@ -88,7 +88,7 @@ public class TableConfiguration_PostgreSQL {
             updateConfigurationToServer();
             WindowConsole.print("          ... Initial data of Table \""+TABLENAME+"\" INSERTED.\n");
         } catch (SQLException ex) {
-            ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
     

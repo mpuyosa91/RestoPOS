@@ -5,6 +5,7 @@
  */
 package View;
 
+import Controller.Surveillance.SurveillanceReport;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.Calendar;
@@ -21,7 +22,9 @@ import javax.swing.JTextArea;
 public class WindowConsole {
  
     public static void print(String str){
-        TEXT.append("["+Calendar.getInstance().getTime()+"]     "+str);
+        String msg = "["+Calendar.getInstance().getTime()+"]     "+str; 
+        TEXT.append(msg);
+        SurveillanceReport.log(msg.replace("\n", ""));
         JScrollBar vertical = SCROLLPANE.getVerticalScrollBar();
         vertical.setValue(vertical.getMaximum());
     } 

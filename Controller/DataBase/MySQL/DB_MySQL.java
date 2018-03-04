@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 */
 import java.sql.*;
-import javax.swing.JOptionPane;
 import Controller.DataBase.DBDataHandler;
 import Model.DataTransferObjects.Bills.FacturaDTO;
 import Model.DataTransferObjects.ConfigurationDTO;
@@ -84,8 +83,8 @@ public class DB_MySQL implements DBDataHandler{
     private static final String     DBNAME              =   "thepanera";
     private static final String     DBUSER              =   "root";
     private static final String     DBPASS              =   "moi050391";
-    private static final String     GESTORLOCATION      =   "jdbc:mysql://localhost/?";
-    private static final String     DBLOCATION          =   "jdbc:mysql://localhost/"+DBNAME+"?";
+    private static final String     GESTORLOCATION      =   "jdbc:mysql://localhost/?useSSL=false";
+    private static final String     DBLOCATION          =   "jdbc:mysql://localhost/"+DBNAME+"?useSSL=false";
     private static final String     DBACCESS            =   "user=root&password=moi050391";
     private static final String     QUERYCREATEDB       =   "CREATE DATABASE "+DBNAME;
     private static final String     QUERYCREATETABLE    =   "CREATE TABLE `"+DBNAME+"`.";
@@ -95,11 +94,7 @@ public class DB_MySQL implements DBDataHandler{
         try {
             Class.forName("com.mysql.jdbc.Driver");
         } catch (ClassNotFoundException ex) {
-            String mess = "Ha Ocurrido un error en 'Driver_MySQL.Class.forName()': \n";
-            mess = mess.concat("<").concat(ex.toString()).concat(">\n");
-            mess = mess.concat("<").concat(ex.getLocalizedMessage()).concat(">\n");
-            mess = mess.concat("<").concat(ex.getMessage()).concat(">\n");
-            JOptionPane.showMessageDialog(null,mess);
+            ErrorReport.generic(Thread.currentThread().getStackTrace(), ex);
         }
         try{
             WindowConsole.print("     Checking connection with server...\n");
@@ -112,12 +107,12 @@ public class DB_MySQL implements DBDataHandler{
                 WindowConsole.print("         DataBase is OK.\n");
                 return conn.createStatement();
             } catch (SQLException ex) {
-                if (ex.getSQLState().equals("3D000")){
+                if (ex.getSQLState().equals("3D000")||ex.getSQLState().equals("42000")){
                     WindowConsole.print("         DataBase does not exist, Creating.\n");
                     try{
                         r_stmt.execute(QUERYCREATEDB);
                         WindowConsole.print("         Database CREATED.\n");
-                        return r_stmt;
+                        return createStatement();
                     } catch (SQLException ex1) { ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,QUERYCREATEDB); }
                 } else ErrorReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
             }   

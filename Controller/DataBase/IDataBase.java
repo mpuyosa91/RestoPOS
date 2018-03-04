@@ -166,7 +166,7 @@ public interface IDataBase {
 //******************************************************************************
 //********************************DataTreatement********************************
 //****************************************************************************** 
-    public static DB_PostgreSQL DB                              = new DB_PostgreSQL();
+    public static DB_MySQL DB                              = new DB_MySQL();
     public static final ArrayList<IClientable> CLIENTELIST  = createClienteList();
     public static final IngredienteDTO  INGREDIENTEDTO      = new IngredienteDTO(null,1,"Ingredientes");
     public static final SubProductoDTO  SUBPRODUCTODTO      = new SubProductoDTO(null,2,"SubProductos");

@@ -18,8 +18,7 @@ public class ErrorReport {
         String mess = "Ha Ocurrido un error en <";
         mess += st[1].getClassName()+".";
         mess += st[1].getMethodName()+"()>: \n";
-        mess = mess.concat("< Exception: " + ex.getMessage() + " >\n");
-        mess = mess.concat("< Localized: " + ex.getLocalizedMessage() + " >\n");
+        mess = mess.concat("< Exception: " + ex.toString() + " >\n");
         JOptionPane.showMessageDialog(null,mess);
         System.exit(0);
     }

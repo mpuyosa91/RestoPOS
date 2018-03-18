@@ -143,6 +143,13 @@ public class PrinterOptions {
         commandSet+=s;
         return s;
     }
+    public String finitOnlyDrawer(){
+        final byte[] DrawerKick12={27,112,0,55,27,112,1,55};
+        String s = new String(DrawerKick12);
+
+        commandSet+=s;
+        return s;
+    }
 
     public String addLineSeperator() {
         final byte[] AlignLeft = {27,97,48};

@@ -72,7 +72,7 @@ public final class Bill implements IPrintable{
     public void openTrack(){
         PRINTEROPTIONS.resetAll();
         PRINTEROPTIONS.initialize();
-        PRINTEROPTIONS.finitWithDrawer();
+        PRINTEROPTIONS.finitOnlyDrawer();
         PrinterOptions.feedPrinter(PRINTEROPTIONS.finalCommandSet().getBytes());
     }
     public void print(){

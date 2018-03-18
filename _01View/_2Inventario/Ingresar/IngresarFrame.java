@@ -186,7 +186,6 @@ public class IngresarFrame extends WindowFrame{
             case Ingrediente:
                 ingredienteActual = (IngredienteDTO) tree;
                 ingredienteList = ingredienteActual.getDown();
-
                 break;
             case SubProducto:
                 subProductoActual = (SubProductoDTO) tree;
@@ -295,7 +294,23 @@ public class IngresarFrame extends WindowFrame{
     private class DeInventarioActionListener implements ActionListener{
         public DeInventarioActionListener(int i){ 
             if (i!=0){
-                dto = generalController.getProduct(ingredienteList.get(i-1).getID());
+                switch (clase){
+                    case Ingrediente:
+                        dto = generalController.getProduct(ingredienteList.get(i-1).getID());
+                        break;
+                    case SubProducto:
+                        dto = generalController.getProduct(subProductoList.get(i-1).getID());
+                        break;
+                    case Producto:     
+                        dto = generalController.getProduct(productoList.get(i-1).getID());
+                        break;
+                    case DeLaCarta:
+                        dto = generalController.getProduct(deLaCartaList.get(i-1).getID());
+                        break;
+                    default:
+                        dto = null;
+                        break;                        
+                }
             }
             else{
                 int addLvl = 100;

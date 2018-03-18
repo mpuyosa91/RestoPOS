@@ -41,7 +41,7 @@ public class ConfigurationDTO {
         return VALUELIST.get(identifier.ordinal());
     }
     public static double getConfigurationValueAndIncrement(Label identifier,int incr){
-        double r = getConfigurationValue(identifier);
+        double r = getConfigurationValue(identifier)+1;
         setConfigurationValueAndPutOnServer(identifier,r+incr);
         return r;
     }

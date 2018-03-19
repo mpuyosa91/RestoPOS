@@ -3,9 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package _01View._4Ventas;
+package _01View._6Configuracion;
 
-import _01View._1Pedidos.Mesas.PedidosFrame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -16,15 +15,30 @@ import _04DataAccessObject.generalController;
  *
  * @author MoisesE
  */
-public class VentasPanel extends javax.swing.JPanel{
+public class ConfiguracionPanel extends javax.swing.JPanel{
     
-    public VentasPanel(){
+    public ConfiguracionPanel(){
         super();
         initComponents();
         moveComponents();
         createListenerList();
     }
-
+    
+    /*
+    
+    Rutina para iniciar otro frame como reaccion a un boton
+    
+    public class ConfiguracionFrameButton implements ActionListener{
+        public ConfiguracionFrameButton(PedidosFrame pedidosFrame){
+            this.pedidosFrame = pedidosFrame;
+        }
+        @Override public void actionPerformed(ActionEvent e) {
+            pedidosFrame.startframe();
+        }
+        private final PedidosFrame pedidosFrame;
+    }
+    */
+    
     private ArrayList<JButton> buttonList;
     private ArrayList<ActionListener> listenList;
     
@@ -32,14 +46,12 @@ public class VentasPanel extends javax.swing.JPanel{
         int i=0;
         JButton btnAux;
         buttonList = new ArrayList<>();
-        btnAux = new JButton("<html><center>Ver<br>Facturas Anteriores</center></html>");   buttonList.add(btnAux);
+        
+        btnAux = new JButton("<html><center>Arreglo<br>de Mesas</center></html>");   buttonList.add(btnAux);
         this.add(buttonList.get(i)); i++; btnAux.setEnabled(false);
-        btnAux = new JButton("<html><center>Ver<br>Facturas del Dia</center></html>");   buttonList.add(btnAux);
+        btnAux = new JButton("<html><center>Encabezado<br>de Facturas</center></html>");   buttonList.add(btnAux);
         this.add(buttonList.get(i)); i++; btnAux.setEnabled(false);
-        btnAux = new JButton("<html><center>Generar <br>Corte De Turno</center></html>");   buttonList.add(btnAux);
-        this.add(buttonList.get(i)); i++; btnAux.setEnabled(false);
-        btnAux = new JButton("<html><center>Generar <br>Corte Diario</center></html>");   buttonList.add(btnAux);
-        this.add(buttonList.get(i)); i++;
+        
     }
     
     private void moveComponents(){
@@ -54,9 +66,11 @@ public class VentasPanel extends javax.swing.JPanel{
         int i = 0;
         ActionListener actionListener;
         listenList = new ArrayList<>();
-        actionListener = (ActionEvent e) -> { generalController.getTurnoFacturation(); };
+        
+        actionListener = (ActionEvent e) -> {  };
         listenList.add(actionListener); buttonList.get(i).addActionListener(actionListener); i++;
-        actionListener = (ActionEvent e) -> { generalController.getDayFacturation(); };
+        actionListener = (ActionEvent e) -> {  };
         listenList.add(actionListener); buttonList.get(i).addActionListener(actionListener); i++;
+                
     }
 }

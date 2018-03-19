@@ -9,6 +9,7 @@ import _01View._2Inventario.InventarioPanel;
 import _01View._1Pedidos.PedidosPanel;
 import _01View._3Personal.PersonalPanel;
 import _01View._4Ventas.VentasPanel;
+import _01View._6Configuracion.ConfiguracionPanel;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import javax.swing.BorderFactory;
@@ -51,6 +52,7 @@ public class MainFrame extends javax.swing.JFrame{
     private VentasPanel panelVentas;
     private PersonalPanel panelPersonal;
     //private EstadisticasPanel panelEstadisticas;
+    private ConfiguracionPanel panelConfiguracion;
     
     private void configureFrame(){
         this.setBounds(0, 0, this.xSize, this.ySize);
@@ -64,10 +66,11 @@ public class MainFrame extends javax.swing.JFrame{
     private void initPanels(){
         mainPanel           = new JPanel();                     mainPanel.setLayout(null);
         panelPedidos        = new PedidosPanel(this);           panelPedidos.setLayout(null);
-        panelInventario     = new InventarioPanel(this);     panelInventario.setLayout(null);
-        panelPersonal       = new PersonalPanel(this);       panelPersonal.setLayout(null);
+        panelInventario     = new InventarioPanel(this);        panelInventario.setLayout(null);
+        panelPersonal       = new PersonalPanel(this);          panelPersonal.setLayout(null);
         panelVentas         = new VentasPanel();                panelVentas.setLayout(null);
-      //panelEstadisticas   = new EstadisticasPanel(this,db)    panelEstadisticas.setLayout(null);
+      //panelEstadisticas   = new EstadisticasPanel(this)       panelEstadisticas.setLayout(null);
+        panelConfiguracion  = new ConfiguracionPanel();         panelConfiguracion.setLayout(null);
         
         this.add(mainPanel); 
         this.add(panelPedidos); 
@@ -75,12 +78,14 @@ public class MainFrame extends javax.swing.JFrame{
         this.add(panelPersonal);
         this.add(panelVentas);
       //this.add(panelEstadisticas);
+        this.add(panelConfiguracion);
         
         panelPedidos.setBounds      (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
         panelInventario.setBounds   (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
         panelPersonal.setBounds     (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
         panelVentas.setBounds       (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
       //panelEstadisticas.setBounds (   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
+        panelConfiguracion.setBounds(   0                           ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
         mainPanel.setBounds         (   this.horizontalSeparation   ,   0   ,  this.horizontalSeparation  ,   this.ySize   );
     }
     
@@ -90,6 +95,8 @@ public class MainFrame extends javax.swing.JFrame{
         panelInventario.setVisible(false);
         panelPersonal.setVisible(false);
         panelVentas.setVisible(false);
+      //panelEstadisticas.setVisible(false);
+        panelConfiguracion.setVisible(false);
         switch (i){
             case 1:
                 panelPedidos.setVisible(true);
@@ -107,7 +114,7 @@ public class MainFrame extends javax.swing.JFrame{
                 //panelEstadisticas.setVisible(true);
                 break;
             case 6:
-                //panelConfiguracion.setVisible(true);
+                panelConfiguracion.setVisible(true);
                 break;
         }
     }
@@ -139,12 +146,12 @@ public class MainFrame extends javax.swing.JFrame{
         btnPersonal.setEnabled(true);
         btnVentas.setEnabled(true);
         btnEstadisticas.setEnabled(false);
-        btnConfiguracion.setEnabled(false);
+        btnConfiguracion.setEnabled(true);
         btnPedidos.addActionListener(       (ActionEvent e) -> { setView(1); });
         btnInventario.addActionListener(    (ActionEvent e) -> { setView(2); });
         btnPersonal.addActionListener(      (ActionEvent e) -> { setView(3); });
         btnVentas.addActionListener(        (ActionEvent e) -> { setView(4); });
         btnEstadisticas.addActionListener(  (ActionEvent e) -> { setView(5); });
-        btnConfiguracion.addActionListener(  (ActionEvent e) -> { setView(6); });
+        btnConfiguracion.addActionListener( (ActionEvent e) -> { setView(6); });
     }
 }

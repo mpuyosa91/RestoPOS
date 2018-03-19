@@ -20,6 +20,7 @@ import java.util.Arrays;
  * @author MoisesE
  */
 public final class Bill implements IPrintable{
+    public static boolean showMesgSys = true;
     
     public Bill (int ID,int turno,String identifier,Calendar date, double duration){
         this.ID = ID;

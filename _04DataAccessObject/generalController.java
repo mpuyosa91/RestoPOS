@@ -152,7 +152,7 @@ public interface generalController {
         if (list!=null) for (int j=0; j<list.size()-1; j++){
             for (int k=j+1;k<list.size();k++){
                 if (list.get(j).getID()==list.get(k).getID()){
-                    list.get(j).setCantidad(list.get(j).getCantidad()+1);
+                    list.get(j).setCantidad(list.get(j).getCantidad()+list.get(k).getCantidad());
         }   }   }
         if (list!=null) for (int j=0; j<list.size()-1; j++){
             for (int k=list.size()-1;k>j;k--){

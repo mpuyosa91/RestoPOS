@@ -17,6 +17,7 @@ import _03Model.Facility.Accounting.IPrintable;
  * @author MoisesE
  */
 public class ReporteTurno{
+    public static boolean showMesgSys = true;
     
     public static void                  flushProductoList(){
         PRODUCTOLIST.clear();
@@ -86,6 +87,9 @@ public class ReporteTurno{
         PRINTEROPTIONS.setTextCenter("Recuerde entregar la estacion en Buen Estado");
         PRINTEROPTIONS.feed((byte)3);
         PRINTEROPTIONS.finitWithDrawer();
+        System.out.print("-------------------------");
+        if (showMesgSys) System.out.print("-------------------------");
+        if (showMesgSys) System.out.print(PRINTEROPTIONS.finalCommandSet());
         PrinterOptions.feedPrinter(PRINTEROPTIONS.finalCommandSet().getBytes());
     }
     

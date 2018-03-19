@@ -28,7 +28,7 @@ import _04DataAccessObject.generalController;
  * @author mpuyosa91
  */
 public class TableBills_MySQL {
- public static boolean showMesgSys = false;
+ public static boolean showMesgSys = true;
     public static final String MESS_OK = "Sistema de Facturas Cargado desde la DB";
        
     
@@ -171,9 +171,9 @@ public class TableBills_MySQL {
                 aux.setDown(new Bill(rs_ID,turno,rs_identifier,rs_date,rs_duracion));
                 aux = aux.getDown();
             }
-            if (showMesgSys) System.out.print("\n"+facturaDTO);            
+            //if (showMesgSys) System.out.print("\nIndividual:"+facturaDTO+'\n');            
         }
-        if (showMesgSys)    System.out.println("\n"+facturaDTO);
+        if (showMesgSys)    System.out.println("\n\nFacturas Del Dia\n"+facturaDTO);
     }
     
     public static void insertContentInBill(Bill aux){

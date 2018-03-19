@@ -18,6 +18,7 @@ import javax.print.attribute.standard.PrinterName;
 //------------------------
 
 public class PrinterOptions {
+    public static boolean showMesgSys = false;
     String commandSet = "";
     int font = 0;
            
@@ -197,9 +198,9 @@ public class PrinterOptions {
             Doc doc = new SimpleDoc(b, flavor, null);
 
             job.print(doc, null);
-            System.out.println("Printed !");
+            if (showMesgSys) System.out.println("Printed !");
         } catch (javax.print.PrintException pex) {
-            System.out.println("Printer Error " + pex.getMessage());
+            if (showMesgSys) System.out.println("Printer Error " + pex.getMessage());
             return false;
         } catch(Exception e) {
             e.printStackTrace();

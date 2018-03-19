@@ -88,6 +88,8 @@ public class MainFrame extends javax.swing.JFrame{
     private void setView(int i){
         panelPedidos.setVisible(false);
         panelInventario.setVisible(false);
+        panelPersonal.setVisible(false);
+        panelVentas.setVisible(false);
         switch (i){
             case 1:
                 panelPedidos.setVisible(true);

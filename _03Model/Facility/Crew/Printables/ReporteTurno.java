@@ -17,7 +17,7 @@ import _03Model.Facility.Accounting.IPrintable;
  * @author MoisesE
  */
 public class ReporteTurno{
-    public static boolean showMesgSys = true;
+    public static boolean showMesgSys = false;
     
     public static void                  flushProductoList(){
         PRODUCTOLIST.clear();

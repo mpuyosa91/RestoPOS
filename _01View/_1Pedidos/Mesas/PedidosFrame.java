@@ -234,7 +234,7 @@ public class PedidosFrame extends WindowFrame{
             String[] options = new String[]{"Ok","Factura", "Cancel"};
             int option = JOptionPane.showOptionDialog(null, panel, cliente.getIdentifier(),
                 JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,null, options, options[0]);
-            System.out.println("----------------------------------------\n***********"+option);
+            
             switch (option) {
                 case 0:
                     cliente.saveBill();
@@ -385,7 +385,6 @@ public class PedidosFrame extends WindowFrame{
         panel.add(quantity);
         String[] options = new String[]{"Agregar", "Cancelar"};
         do {
-            addNew = false;
             int option = JOptionPane.showOptionDialog(null, panel, "Cantidad de "+dto.getNombre(),
             JOptionPane.NO_OPTION, JOptionPane.PLAIN_MESSAGE,null, options, options[0]);
             if(option == 0){

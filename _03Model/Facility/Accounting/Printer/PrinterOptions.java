@@ -2,6 +2,7 @@ package _03Model.Facility.Accounting.Printer;
 
 //------------------------
 
+import _02Controller.ProgramIntegritySurveillance.SurveillanceReport;
 import static java.lang.Math.pow;
 import java.util.Calendar;
 import javax.print.Doc;
@@ -190,8 +191,8 @@ public class PrinterOptions {
     public   static boolean feedPrinter(byte[] b) {
         try {       
             AttributeSet attrSet = new HashPrintServiceAttributeSet(new PrinterName("CognitiveTPG Receipt", null)); //EPSON TM-U220 ReceiptE4
-
-            DocPrintJob job = PrintServiceLookup.lookupPrintServices(null, attrSet)[0].createPrintJob();       
+            
+            DocPrintJob job = PrintServiceLookup.lookupPrintServices(null, attrSet)[0].createPrintJob();
             //PrintServiceLookup.lookupDefaultPrintService().createPrintJob();  
 
             DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
@@ -200,10 +201,10 @@ public class PrinterOptions {
             job.print(doc, null);
             if (showMesgSys) System.out.println("Printed !");
         } catch (javax.print.PrintException pex) {
-            if (showMesgSys) System.out.println("Printer Error " + pex.getMessage());
+            SurveillanceReport.generic(Thread.currentThread().getStackTrace(), pex);
             return false;
         } catch(Exception e) {
-            e.printStackTrace();
+            SurveillanceReport.generic(Thread.currentThread().getStackTrace(), e);
             return false;
         }
         return true;

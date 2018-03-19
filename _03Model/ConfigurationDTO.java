@@ -42,7 +42,7 @@ public class ConfigurationDTO {
     }
     public static double getConfigurationValueAndIncrement(Label identifier,int incr){
         double r = getConfigurationValue(identifier)+1;
-        setConfigurationValueAndPutOnServer(identifier,r+incr);
+        setConfigurationValueAndPutOnServer(identifier,r);
         return r;
     }
     

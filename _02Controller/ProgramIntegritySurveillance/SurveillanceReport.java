@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
  * @author MoisesE
  */
 public class SurveillanceReport {
-    public static boolean EXITONERROR;
+    public static boolean EXITONERROR = false;
     
     public static void log(String msg){
         LOGGER.log(Level.INFO, msg);

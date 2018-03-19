@@ -5,8 +5,6 @@
  */
 package _01View._2Inventario.Listar;
 
-import _03Model.ConfigurationDTO.Label;
-import _03Model.Facility.ProductsAndSupplies.Inventory;
 import _03Model.Facility.ProductsAndSupplies.Inventory.DeInventarioType;
 import _01View.MainFrame;
 import _01View.Templates.IFrame;

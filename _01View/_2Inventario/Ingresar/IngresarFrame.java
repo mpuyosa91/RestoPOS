@@ -39,6 +39,8 @@ import _03Model.Facility.ProductsAndSupplies.Measure.Measurable;
 import static java.lang.Math.round;
 import java.util.Arrays;
 import _04DataAccessObject.generalController;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -82,7 +84,7 @@ public class IngresarFrame extends WindowFrame{
     private JScrollPane                 listItemScroll;
     //------------------------------------------------------------
     private JPanel                      listItemPanel ;
-    private Inventory                dto;
+    private Inventory                   dto;
     private IngredienteDTO              ingredienteTree;
     private SubProductoDTO              subProductoTree;
     private ProductoDTO                 productoTree;
@@ -110,9 +112,11 @@ public class IngresarFrame extends WindowFrame{
     private ArrayList<JTextArea>        componentesTextAreaList;
     private JTextArea                   nombreTextArea;
     private JComboBox                   typeComboBox;
+    private JLabel                      unidadJLabel;
     private JComboBox                   unidadComboBox;
     private JLabel                      cantidadLabel;
     private JTextArea                   cantidadTextArea;
+    private JLabel                      precioJLabel;
     private JTextArea                   precioTextArea;
     private JButton                     addIngredButton;
     private JButton                     addSubProButton;
@@ -379,7 +383,7 @@ public class IngresarFrame extends WindowFrame{
                 unidadComboBox.setSelectedIndex(dto.getMeasure().getFixedPos());
                 cantidadTextArea.setText(Double.toString(dto.getMeasure().getFixedQuantity()));
             }
-            isFinalCheckBox.setSelected(dto.isFinal());
+            isFinalCheckBox.setSelected((isNew)? false: dto.isFinal());
             actualizeSingleItemPanel(dto);
             setVisiblePanel(singleItemScroll);
         }
@@ -732,12 +736,40 @@ public class IngresarFrame extends WindowFrame{
             Measurable.configureUnitComboBox(Measurable.Type.values()[typeComboBox.getSelectedIndex()], unidadComboBox);
         }
     }
+    private void showHideElementsByIsFinal(){
+        if(isFinalCheckBox.isSelected()){
+            unidadJLabel.setVisible(true);
+            unidadComboBox.setVisible(true);
+            typeComboBox.setVisible(true);
+            cantidadLabel.setVisible(true);
+            cantidadTextArea.setVisible(true);
+            precioJLabel.setVisible(true);
+            precioTextArea.setVisible(true);
+            addIngredButton.setVisible(true);
+            addSubProButton.setVisible(true);
+            addProducButton.setVisible(true);
+            addDeLaCaButton.setVisible(true);
+        }
+        else{
+            unidadJLabel.setVisible(false);
+            unidadComboBox.setVisible(false);
+            typeComboBox.setVisible(false);
+            cantidadLabel.setVisible(false);
+            cantidadTextArea.setVisible(false);
+            precioJLabel.setVisible(false);
+            precioTextArea.setVisible(false);
+            addIngredButton.setVisible(false);
+            addSubProButton.setVisible(false);
+            addProducButton.setVisible(false);
+            addDeLaCaButton.setVisible(false);
+        }
+    }
     private void createSingleItemPanel(){
         singleItemPanel.setBounds(LeftPanel_Rectangle);
         singleItemPanel.setLayout(null);
                         
         JLabel  nombreLabel     =   new JLabel("Nombre:");
-        JLabel  unidadLabel     =   new JLabel("Unidad de Medida:");
+        unidadJLabel     =   new JLabel("Unidad de Medida:");
         switch (clase) {
             case Ingrediente:
             case SubProducto:
@@ -760,7 +792,7 @@ public class IngresarFrame extends WindowFrame{
                 typeComboBox.actionPerformed(new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null));
                 break;
         }
-        JLabel  precioLabel     =   new JLabel("Precio:");
+        precioJLabel     =   new JLabel("Precio:");
         JLabel  isFinalLabel    =   new JLabel("¿Es Utilizable?:");
         
         int x = 50, y = 100, w = 200, h = 50, dx = 200, dw=80, dy = 50;
@@ -771,15 +803,20 @@ public class IngresarFrame extends WindowFrame{
         singleItemPanel.add(isFinalLabel);     isFinalLabel.setBounds      (    x, y,    w, h);
         singleItemPanel.add(isFinalCheckBox);  isFinalCheckBox.setBounds   ( dx+x, y, dw+w, h); y+=dy;
         
+        showHideElementsByIsFinal();
+        isFinalCheckBox.addChangeListener((ChangeEvent ce) -> {
+            showHideElementsByIsFinal();
+        });
+        
         if (clase.equals(DeInventarioType.Ingrediente)||clase.equals(DeInventarioType.SubProducto)||clase.equals(DeInventarioType.Producto)){
-            singleItemPanel.add(unidadLabel);      unidadLabel.setBounds       (    x, y,    w, h);
+            singleItemPanel.add(unidadJLabel);     unidadJLabel.setBounds      (    x, y,    w, h);
             singleItemPanel.add(typeComboBox);     typeComboBox.setBounds      ( dx+x, y,(dw+w)/2, h);
             singleItemPanel.add(unidadComboBox);   unidadComboBox.setBounds    ( dx+x+(dw+w)/2, y,(dw+w)/2, h); y+=dy;
             singleItemPanel.add(cantidadLabel);    cantidadLabel.setBounds     (    x, y,    w, h);
             singleItemPanel.add(cantidadTextArea); cantidadTextArea.setBounds  ( dx+x, y, dw+w, h); y+=dy;
         }
         if (clase.equals(DeInventarioType.Producto)||clase.equals(DeInventarioType.DeLaCarta)){
-            singleItemPanel.add(precioLabel);      precioLabel.setBounds       (    x, y,    w, h);
+            singleItemPanel.add(precioJLabel);      precioJLabel.setBounds     (    x, y,    w, h);
             singleItemPanel.add(precioTextArea);   precioTextArea.setBounds    ( dx+x, y, dw+w, h); y+=dy;
         }
         if (clase.equals(DeInventarioType.SubProducto)||clase.equals(DeInventarioType.Producto))    singleItemPanel.add(addIngredButton);     

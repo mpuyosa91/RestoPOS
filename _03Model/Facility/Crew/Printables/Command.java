@@ -5,9 +5,8 @@
  */
 package _03Model.Facility.Crew.Printables;
 
-import _03Model.Facility.ProductsAndSupplies.Inventory;
 import _03Model.Facility.ProductsAndSupplies.DeLaCartaDTO;
-import _03Model.Facility.Accounting.Printer.PrinterOptions;
+import _03Model.Facility.Accounting.Printer.KitchenPrinter;
 
 import java.util.Calendar;
 import _03Model.Facility.ProductsAndSupplies.ISellable;
@@ -23,30 +22,30 @@ public class Command{
               
     public static void imprimir(IClientable cliente, int nroComanda){
         boolean valid = false;
-        PRINTEROPTIONS.resetAll();
-        PRINTEROPTIONS.initialize();
-        PRINTEROPTIONS.feedBack((byte)2);
-        PRINTEROPTIONS.setFont(5, false);
-        PRINTEROPTIONS.setTextCenter("COMANDA");                                PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setFont(2, true);
-        PRINTEROPTIONS.setTextCenter("The Panera");                             PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Bakery and Food");                        PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setFont(4, false);
-        PRINTEROPTIONS.addLineSeperator();                                      PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextLeft(IPrintable.dateTimeHeader(Calendar.getInstance(),2));
-        PRINTEROPTIONS.setTextLeft(cliente.getIdentifier());                    PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextLeft("Orden: "+cliente.getNroOrden()+"        Comanda: "+nroComanda); PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextLeft("Tiempo Clientes: " + String.valueOf((int)round(cliente.getDuracionInSeconds()/60))+" Min.");  PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                      PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter(" - Ordenes - ");                          PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                      PRINTEROPTIONS.newLine();
+        KITCHEN_PRINTER.resetAll();
+        KITCHEN_PRINTER.initialize();
+        KITCHEN_PRINTER.feedBack((byte)2);
+        KITCHEN_PRINTER.setFont(5, false);
+        KITCHEN_PRINTER.setTextCenter("COMANDA");                                KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.setFont(2, true);
+        KITCHEN_PRINTER.setTextCenter("The Panera");                             KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.setTextCenter("Bakery and Food");                        KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.setFont(4, false);
+        KITCHEN_PRINTER.addLineSeperator();                                      KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.setTextLeft(IPrintable.dateTimeHeader(Calendar.getInstance(),2));
+        KITCHEN_PRINTER.setTextLeft(cliente.getIdentifier());                    KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.setTextLeft("Orden: "+cliente.getNroOrden()+"        Comanda: "+nroComanda); KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.setTextLeft("Tiempo Clientes: " + String.valueOf((int)round(cliente.getDuracionInSeconds()/60))+" Min.");  KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.addLineSeperator();                                      KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.setTextCenter(" - Ordenes - ");                          KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.addLineSeperator();                                      KITCHEN_PRINTER.newLine();
         ISellable aux;
         for (int i=0; i<cliente.getNuevosProductoList().size(); i++){
             aux = cliente.getNuevosProductoList().get(i);
             if (aux.getClass()==DeLaCartaDTO.class){
                 valid = true;
-                PRINTEROPTIONS.setTextLeft(" (*)"+aux.getNombre());                   PRINTEROPTIONS.newLine();
-                PRINTEROPTIONS.setTextLeft("    "+((DeLaCartaDTO)aux).getEspecial()); PRINTEROPTIONS.newLine();
+                KITCHEN_PRINTER.setTextLeft(" (*)"+aux.getNombre());                   KITCHEN_PRINTER.newLine();
+                KITCHEN_PRINTER.setTextLeft("    "+((DeLaCartaDTO)aux).getEspecial()); KITCHEN_PRINTER.newLine();
             }           
             /*
             aux.getComposition().sort((DeInventario o1, DeInventario o2) -> (o1.getID()-o2.getID()));
@@ -54,20 +53,20 @@ public class Command{
                 int auxID = composition.getID();
                 String spaces = ""; 
                 do{ spaces+=" "; auxID/=10; }while(auxID>0);
-                PRINTEROPTIONS.setTextLeft(spaces+"  -"+composition.getNombre());
-                PRINTEROPTIONS.newLine();
+                KITCHEN_PRINTER.setTextLeft(spaces+"  -"+composition.getNombre());
+                KITCHEN_PRINTER.newLine();
             });
             */
         }
-        PRINTEROPTIONS.addLineSeperator();                                      PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Fin Comanda");
-        PRINTEROPTIONS.feed((byte)3);
-        PRINTEROPTIONS.finit();
+        KITCHEN_PRINTER.addLineSeperator();                                      KITCHEN_PRINTER.newLine();
+        KITCHEN_PRINTER.setTextCenter("Fin Comanda");
+        KITCHEN_PRINTER.feed((byte)3);
+        KITCHEN_PRINTER.finit();
         if (valid)
-            PrinterOptions.feedPrinter(PRINTEROPTIONS.finalCommandSet().getBytes());
+            KitchenPrinter.feedPrinter(KITCHEN_PRINTER.finalCommandSet().getBytes());
     }
     
-    private static final PrinterOptions PRINTEROPTIONS = new PrinterOptions();
+    private static final KitchenPrinter KITCHEN_PRINTER = new KitchenPrinter();
 
 }
 

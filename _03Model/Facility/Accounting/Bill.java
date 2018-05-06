@@ -7,7 +7,7 @@ package _03Model.Facility.Accounting;
 
 import _03Model.ConfigurationDTO;
 import _03Model.ConfigurationDTO.Label;
-import _03Model.Facility.Accounting.Printer.PrinterOptions;
+import _03Model.Facility.Accounting.Printer.PointOfServicePrinter;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,7 +20,7 @@ import _03Model.Customers.IClientable;
  */
 public final class Bill implements IPrintable{
     public static boolean showMesgSys = true;
-    
+
     public Bill (int ID,int turno,String identifier,Calendar date, double duration){
         this.ID = ID;
         this.identifier = identifier;
@@ -30,115 +30,128 @@ public final class Bill implements IPrintable{
         this.productoList = new ArrayList<>();
         this.consumo = 0.0;
         this.down = null;
-    }      
+        printer = new PointOfServicePrinter();
+    }
     public Bill (IClientable cliente, int idFactura){
         ID = idFactura;
         turno = (int) ConfigurationDTO.getConfigurationValue(Label.TurnoActual);
         identifier = cliente.getIdentifier();
         date = cliente.getHoraSalida();
         duration = cliente.getDuracionInSeconds()*1000;
-        productoList = new ArrayList(); productoList.addAll(cliente.getProductoList());
+        productoList = new ArrayList<>(); productoList.addAll(cliente.getProductoList());
         consumo = cliente.getConsumo();
         down = null;
+        printer = new PointOfServicePrinter();
     }
-    public Bill (Bill dto){
-        ID = dto.getID();
-        identifier = dto.getIdentifier();
-        date = dto.getDate();
-        turno = dto.getTurno();
-        duration = dto.getDuracion();
-        productoList = new ArrayList(); productoList.addAll(dto.getProductoList());
-        consumo = dto.getConsumo();
-        if (dto.getDown()!=null)this.down   = new Bill(dto.getDown());
-        else                    this.down   = null;
-    }
-    
-    @Override public void setDown(Bill dto)           { this.down = dto;                  }
-    
-    @Override public int getID()                            { return ID;                        }
-    @Override public String getIdentifier()                 { return identifier;                }
-    @Override public int getTurno()                         { return turno; }
-    @Override public Calendar getDate()                     { return date;                      }
-    @Override public double getDuracion()                   { return duration;                  }   
-    @Override public Bill getDown()                   { return down;                      }
-    @Override public ArrayList<ISellable> getProductoList() { return productoList;              }
-    @Override public double getConsumo()                    { 
+
+    @Override public void       setDown(Bill dto) { this.down = dto; }
+    @Override public int        getID() { return ID; }
+    @Override public String     getIdentifier() { return identifier; }
+    @Override public int        getTurno() { return turno; }
+    @Override public Calendar   getDate() { return date; }
+    @Override public double     getDuracion() { return duration; }
+    @Override public Bill       getDown() { return down; }
+    @Override public ArrayList<ISellable>  getProductoList() {
+        return productoList; }
+
+    @Override public double getConsumo() {
         consumo = 0;
         for (int i=0; i<getProductoList().size(); i++)
             consumo += (getProductoList().get(i).getPrecio()*getProductoList().get(i).getCantidad());
         return consumo;  
     }
-    
-    public void openTrack(){
-        PRINTEROPTIONS.resetAll();
-        PRINTEROPTIONS.initialize();
-        PRINTEROPTIONS.finitOnlyDrawer();
-        PrinterOptions.feedPrinter(PRINTEROPTIONS.finalCommandSet().getBytes());
-    }
+
     public void print(){
         String line44;
-        int id=6,item=21,prec=6,cant=4,subt=7;
-        ID = (int) ConfigurationDTO.getConfigurationValue(Label.ConsecutivoFacturas);
+        int id_width=6;
+        int item_width=21;
+        int precio_width=6;
+        int cantidad_width=4;
+        int subtotal_width=7;
+        ID = (int)
+                ConfigurationDTO
+                        .getConfigurationValue(Label.ConsecutivoFacturas);
         
-        PRINTEROPTIONS.resetAll();
-        PRINTEROPTIONS.initialize();
-        PRINTEROPTIONS.feedBack((byte)2);
-        PRINTEROPTIONS.setFont(4, true);
-        PRINTEROPTIONS.setTextLeft(IPrintable.billHeader());
-        PRINTEROPTIONS.setFont(2, false);
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextRight(String.valueOf(ID));                    PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextLeft(IPrintable.dateTimeHeader(Calendar.getInstance(),0));
-        PRINTEROPTIONS.setTextLeft(getIdentifier());                        PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter(" - Detalles de Compra - ");           PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
-        line44 = rightPadding("Nro",id)+rightPadding("Item",item);
-        line44+= leftPadding("Prec",prec)+leftPadding("#",cant)+leftPadding("SubT.",subt);
-        PRINTEROPTIONS.setTextLeft(line44);                                 PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
+        printer.resetAll();
+        printer.initialize();
+        printer.feedBack((byte)2);
+        printer.setFont(4, true);
+        printer.setTextLeft(IPrintable.billHeader());
+        printer.setFont(2, false);
+        printer.addLineSeperator();                         printer.newLine();
+        printer.setTextRight(String.valueOf(ID));           printer.newLine();
+        printer.setTextLeft(
+                IPrintable.dateTimeHeader(
+                        Calendar.getInstance(),0));
+        printer.setTextLeft(getIdentifier());               printer.newLine();
+        printer.addLineSeperator();                         printer.newLine();
+        printer.setTextCenter(" - Detalles de Compra - ");  printer.newLine();
+        printer.addLineSeperator();                         printer.newLine();
+        line44 =  rightPadding("Nro",id_width);
+        line44 += rightPadding("Item",item_width);
+        line44 += leftPadding("Prec",precio_width);
+        line44 += leftPadding("#",cantidad_width);
+        line44 += leftPadding("SubT.",subtotal_width);
+        printer.setTextLeft(line44);                        printer.newLine();
+        printer.addLineSeperator();                         printer.newLine();
 
-        ISellable aux;
-        for (int i=0; i<productoList.size(); i++){
-            aux = productoList.get(i);   
-            String numero=String.valueOf(aux.getID());
-            if (numero.length()<id)             line44=rightPadding(numero,id);
-            else                                line44=leftPadding("!",id).replace(" ", "#").replace("!", " ");
-            if (aux.getNombre().length()<item)  line44+=rightPadding(aux.getNombre(),item);
-            else                                line44+=aux.getNombre().substring(0,item-1)+" ";
-            String precio = String.valueOf((int) aux.getPrecio());
-            if (precio.length()<prec)           line44+=leftPadding(precio,prec);
-            else                                line44+=rightPadding("!",prec).replace(" ", "#").replace("!", " ");
-            String cantidad = String.valueOf((int) aux.getCantidad());
-            if (cantidad.length()<cant)         line44+=leftPadding(cantidad,cant);
-            else                                line44+=rightPadding("!",cant).replace(" ", "#").replace("!", " ");
-            String subT = String.valueOf((int)(aux.getPrecio()*aux.getCantidad()));
-            if (subT.length()<subt)             line44+=leftPadding(subT,subt);
-            else                                line44+=rightPadding("!",subt).replace(" ", "#").replace("!", " ");
-            PRINTEROPTIONS.setTextLeft(line44);                             PRINTEROPTIONS.newLine();
+        for (ISellable product : productoList) {
+
+            line44 = validateString2Right(
+                    String.valueOf(product.getID()),
+                    id_width);
+
+            String nombre = String.valueOf(product.getNombre());
+            if (nombre.length() < item_width)
+                line44 += rightPadding(nombre, item_width);
+            else
+                line44 += nombre.substring(0, item_width - 1) + " ";
+
+            line44 += validateString2Left(
+                    String.valueOf((int) product.getPrecio()),
+                    precio_width);
+
+            line44 += validateString2Left(
+                    String.valueOf((int) product.getCantidad()),
+                    cantidad_width);
+
+            line44 += validateString2Left(
+                    String.valueOf(
+                            (int)(product.getPrecio()*product.getCantidad())),
+                    subtotal_width);
+
+            printer.setTextLeft(line44);
+            printer.newLine();
         }
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextRight("Total: "+(int)getConsumo());           PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Gracias por su Compra");              PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Nuestro Placer es Servirle");
-        PRINTEROPTIONS.feed((byte)3);
-        PRINTEROPTIONS.finitWithDrawer();
-        PrinterOptions.feedPrinter(PRINTEROPTIONS.finalCommandSet().getBytes());
+        printer.addLineSeperator();                         printer.newLine();
+        printer.setTextRight("Total: "+(int)getConsumo());  printer.newLine();
+        printer.addLineSeperator();                         printer.newLine();
+        printer.setTextCenter("Gracias por su Compra");     printer.newLine();
+        printer.setTextCenter("Nuestro Placer es Servirle");
+        printer.feed((byte)3);
+        printer.feedCutAndDrawerKick();
+        printer.printAll();
     }
-    
+
+    public void openTrack(){
+        printer.resetAll();
+        printer.initialize();
+        printer.drawerKick();
+        printer.printAll();
+    }
+
     @Override public String toString(){
-        String r = "";
-        r += "\nFacturaDTO toString():\n";
-        r += "ID: "+ ID +". Date: "+date.getTime().toString() + "\n";
-        r += "Identifer: "+getIdentifier()+"\n";
+        StringBuilder r = new StringBuilder();
+        r.append("\nFacturaDTO toString():\n");
+        r.append("ID: ").append(ID).append(". Date: ").append(date.getTime().toString()).append("\n");
+        r.append("Identifer: ").append(getIdentifier()).append("\n");
         for (int i=0; i<getProductoList().size(); i++){
             ISellable aux = getProductoList().get(i);
-            r += aux + "\n";
+            r.append(aux).append("\n");
         }
-        r += "Consumo: "+getConsumo();
-        if (down!=null) r += down.toString();
-        return r;
+        r.append("Consumo: ").append(getConsumo());
+        if (down!=null) r.append(down.toString());
+        return r.toString();
     }
     
     private int ID;
@@ -149,13 +162,27 @@ public final class Bill implements IPrintable{
     private double consumo;
     private final double duration;
     private Bill down;    
-    private static final PrinterOptions PRINTEROPTIONS = new PrinterOptions();
+    private final PointOfServicePrinter printer;
 
-    public static String rightPadding(String str, int num) {
+    private static String rightPadding(String str, int num) {
         return String.format("%1$-" + num + "s", str);
     }
-    public static String leftPadding(String str, int n) {
+    private static String leftPadding(String str, int n) {
         return String.format("%1$" + n + "s", str);
+    }
+    private static String validateString2Left(String string, int width){
+        return (string.length()<width)?
+                leftPadding(string, width):
+                rightPadding("!", width)
+                        .replace(" ", "#")
+                        .replace("!", " ");
+    }
+    private static String validateString2Right(String string, int width){
+        return (string.length()<width)?
+                rightPadding(string, width):
+                leftPadding("!", width)
+                        .replace(" ", "#")
+                        .replace("!", " ");
     }
 }
 

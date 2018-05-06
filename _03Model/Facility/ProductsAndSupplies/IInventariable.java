@@ -6,7 +6,7 @@
 package _03Model.Facility.ProductsAndSupplies;
 
 import _03Model.Facility.ProductsAndSupplies.Measure.Measure;
-import _03Model.Facility.Accounting.Printer.PrinterOptions;
+import _03Model.Facility.Accounting.Printer.PointOfServicePrinter;
 import java.util.ArrayList;
 
 
@@ -16,46 +16,46 @@ import java.util.ArrayList;
  */
 public interface IInventariable {
     
-    public int          getID();
-    public String       getNombre();
-    public double       getPrecio();
-    public String       getUnidadMedida();
-    public String       getUnidadBase();
-    public double       getCantidadFixed();
-    public double       getCantidad(String unidad);
-    public double       getCantidad();
-    public Measure      getMeasure();
-    public boolean      isFinal();
-    public Inventory getUp();
-    public ArrayList                getDown();
-    public ArrayList<Inventory>  getComposition();
+    int          getID();
+    String       getNombre();
+    double       getPrecio();
+    String       getUnidadMedida();
+    String       getUnidadBase();
+    double       getCantidadFixed();
+    double       getCantidad(String unidad);
+    double       getCantidad();
+    Measure      getMeasure();
+    boolean      isFinal();
+    Inventory getUp();
+    ArrayList                getDown();
+    ArrayList<Inventory>  getComposition();
     
-    public void         setAllFrom(Inventory dto);
-    public void         setID(int ID);   
-    public void         setNombre(String nombre);
-    public void         setCantidad(double cantidad);
-    public void         setCantidad(double cantidad, String unidad);
-    public void         setMeasurable(Measure measure);
-    public void         setFinal(boolean b);
-    public <G extends IInventariable> void setUp(G up);
-    public void         setDown(ArrayList down);
+    void         setAllFrom(Inventory dto);
+    void         setID(int ID);   
+    void         setNombre(String nombre);
+    void         setCantidad(double cantidad);
+    void         setCantidad(double cantidad, String unidad);
+    void         setMeasurable(Measure measure);
+    void         setFinal(boolean b);
+    <G extends IInventariable> void setUp(G up);
+    void         setDown(ArrayList down);
     
-    public static <G extends IInventariable, DeInventario> ArrayList<G> treeToList(G dto, ArrayList<G> list){
-        ArrayList<G> aux;
-        for (int i=0; i<dto.getDown().size(); i++){
-            aux = (ArrayList<G>) dto.getDown();
-            if (aux.get(i).isFinal()) list.add(aux.get(i));
-            else                      treeToList(aux.get(i),list);}
+    static <G extends IInventariable, Inventory> ArrayList<G> treeToList(G dto, ArrayList<G> list){
+        ArrayList<G> childs = (ArrayList<G>) dto.getDown();
+        for(G child: childs){
+            if (child.isFinal())    list.add(child);
+            else                    treeToList(child,list);
+        }
         return list;
     }
-    
-    public static String spaces(int spcs){
+
+    static String spaces(int spcs){
         String r = "";
         for (int i=0; i<spcs; i++)
             r = r + " ";
         return r;
     }
-    public static <G extends Inventory> String treeToString(G dto){
+    static <G extends Inventory> String treeToString(G dto){
         String r = "";
         switch(dto.getClase()){
             case Ingrediente:
@@ -77,7 +77,7 @@ public interface IInventariable {
         }
         return r;
     }
-    public static String treeToString(IngredienteDTO tree, String r, int lvl){
+    static String treeToString(IngredienteDTO tree, String r, int lvl){
         r = r +"\n"+ spaces(lvl)+ tree.getDescription();
         for (int i=0; i<tree.getDown().size(); i++){
             IngredienteDTO aux = (IngredienteDTO) tree.getDown().get(i); 
@@ -85,7 +85,7 @@ public interface IInventariable {
         }
         return r;
     }
-    public static String treeToString(SubProductoDTO tree, String r, int lvl){
+    static String treeToString(SubProductoDTO tree, String r, int lvl){
         r = r +"\n"+ spaces(lvl)+ tree.getDescription();
         if (tree.isFinal()){
             for (int i=0; i<tree.getIngredienteList().size(); i++)
@@ -98,7 +98,7 @@ public interface IInventariable {
             r = treeToString(aux,r,String.valueOf(tree.getID()).length()+3+lvl);}
         return r;
     }
-    public static String treeToString(ProductoDTO tree, String r,int lvl){
+    static String treeToString(ProductoDTO tree, String r,int lvl){
         r = r +"\n"+ spaces(lvl)+ tree.getDescription();
         if (tree.isFinal()){
             for (int i=0; i<tree.getIngredienteList().size(); i++)
@@ -113,7 +113,7 @@ public interface IInventariable {
             r = treeToString(aux,r,String.valueOf(tree.getID()).length()+3+lvl);}
         return r;
     }
-    public static String treeToString(DeLaCartaDTO tree, String r, int lvl){
+    static String treeToString(DeLaCartaDTO tree, String r, int lvl){
         r = r +"\n"+ spaces(lvl)+ tree.getDescription();
         if (tree.isFinal()){
             for (int i=0; i<tree.getSubProductoList().size(); i++)
@@ -129,53 +129,63 @@ public interface IInventariable {
         return r;
     }
         
-    public static <G extends IInventariable> void toThermalPrinter(G dto){
-        PRINTEROPTIONS.resetAll();
-        PRINTEROPTIONS.initialize();
-        PRINTEROPTIONS.feedBack((byte)2);
-        PRINTEROPTIONS.setFont(4, true);
-        PRINTEROPTIONS.setTextCenter("The Panera");                          PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Bakery and Food");                     PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setFont(2, false);
-        PRINTEROPTIONS.setTextCenter("NIT: 15.444.730-9");                   PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Direccion: Cr.81 #43-19 Local 108");   PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Rionegro, Antioquia");                 PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Domicilios: 562 9979");                PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter(" - Codigos de Producto - ");           PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                   PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextLeft("Nro.     Item                         Precio");
-        PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                   PRINTEROPTIONS.newLine();
-        ArrayList<G> list = new ArrayList<>();
-        list = IInventariable.treeToList(dto, list);
-        G aux;
-        for (int i=0; i<list.size(); i++){
-            aux = list.get(i);
-            
-            String spaces = "";
-            String ID = String.valueOf(aux.getID());
-            String nombre = aux.getNombre();
-            String precio = String.valueOf((int) aux.getPrecio());
-            
-            spaces = ""; for (int j=0; j<8-ID.length(); j++) {spaces +=" ";}
-            ID = spaces.concat(ID+" ");
-            
-            spaces = "";
-            if (nombre.length()<28) for (int j=0;j<29-nombre.length();j++){ spaces += " "; }
-            else                    nombre = aux.getNombre().substring(0, 28)+" ";
-            nombre = nombre.concat(spaces); 
-            
-            spaces = ""; for (int j=0;j<6-precio.length();j++){ spaces += " "; }
-            precio = spaces.concat(precio);
-            
-            PRINTEROPTIONS.setTextLeft(ID+nombre+precio);
-            PRINTEROPTIONS.newLine();
+    static <G extends IInventariable> void toThermalPrinter(G dto){
+        PRINTER.resetAll();
+        PRINTER.initialize();
+        PRINTER.feedBack((byte)2);
+        PRINTER.setFont(4, true);
+        PRINTER.setTextCenter("The Panera");                PRINTER.newLine();
+        PRINTER.setTextCenter("Bakery and Food");           PRINTER.newLine();
+        PRINTER.setFont(2, false);
+        PRINTER.setTextCenter("REGIMEN SIMPLIFICADO");     PRINTER.newLine();
+        PRINTER.setTextCenter("NIT: 15.444.730-9");         PRINTER.newLine();
+        PRINTER.setTextCenter("Direccion: Cr.81 #43-19 Local 108");
+        PRINTER.newLine();
+        PRINTER.setTextCenter("Rionegro, Antioquia");       PRINTER.newLine();
+        PRINTER.setTextCenter("Domicilios: 562 9979");      PRINTER.newLine();
+        PRINTER.setTextCenter(" - Codigos de Producto - "); PRINTER.newLine();
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+        PRINTER.setTextLeft("Nro.     Item                         Precio");
+        PRINTER.newLine();
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+        ArrayList<G> productList = new ArrayList<>();
+        productList = IInventariable.treeToList(dto, productList);
+        StringBuilder spaces;
+        for (G product : productList) {
+
+            String ID = String.valueOf(product.getID());
+            String nombre = product.getNombre();
+            String precio = String.valueOf((int) product.getPrecio());
+
+            spaces = new StringBuilder();
+            for (int j = 0; j < 9 - ID.length(); j++) {
+                spaces.append(" ");
+            }
+            ID = spaces.toString().concat(ID + " ");
+
+            if (nombre.length() < 29) {
+                spaces = new StringBuilder();
+                for (int j = 0; j < 29 - nombre.length(); j++) {
+                    spaces.append(" ");
+                }
+            }
+            else nombre = product.getNombre().substring(0, 28) + " ";
+            nombre = nombre.concat(spaces.toString());
+
+            spaces = new StringBuilder();
+            for (int j = 0; j < 6 - precio.length(); j++) {
+                spaces.append(" ");
+            }
+            precio = spaces.toString().concat(precio);
+
+            PRINTER.setTextLeft(ID + nombre + precio);
+            PRINTER.newLine();
         }
-        PRINTEROPTIONS.addLineSeperator();                                   PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.feed((byte)3);
-        PRINTEROPTIONS.finit();
-        PrinterOptions.feedPrinter(PRINTEROPTIONS.finalCommandSet().getBytes());
-        //System.out.println(printerOptions.finalCommandSet());
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+        PRINTER.feed((byte)3);
+        PRINTER.feedAndCut();
+        PRINTER.printAll();
     }
-    public static final PrinterOptions PRINTEROPTIONS = new PrinterOptions();
+    PointOfServicePrinter PRINTER = new PointOfServicePrinter();
+
 }

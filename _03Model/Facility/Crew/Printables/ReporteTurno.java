@@ -5,11 +5,15 @@
  */
 package _03Model.Facility.Crew.Printables;
 
-import _03Model.Facility.Accounting.Printer.PrinterOptions;
+import _03Model.Facility.Accounting.Printer.PointOfServicePrinter;
 
 import java.util.Calendar;
+
+import _03Model.Facility.ProductsAndSupplies.IInventariable;
 import _03Model.Facility.ProductsAndSupplies.ISellable;
 import java.util.ArrayList;
+import java.util.Comparator;
+
 import _03Model.Facility.Accounting.IPrintable;
 
 /**
@@ -19,84 +23,89 @@ import _03Model.Facility.Accounting.IPrintable;
 public class ReporteTurno{
     public static boolean showMesgSys = false;
     
-    public static void                  flushProductoList(){
-        PRODUCTOLIST.clear();
+    public static void flushProductList() {
+        PRODUCT_LIST.clear();
     }
-    public static void                  addProductoList(ISellable sellable) {
-        PRODUCTOLIST.add(sellable);
+    public static void addToProductList(ISellable sellable) {
+        PRODUCT_LIST.add(sellable);
     }
-    public static ArrayList<ISellable>  getProductoList()                   {
-        return PRODUCTOLIST;
+    public static ArrayList<ISellable> getProductList() {
+        return PRODUCT_LIST;
     }
-    public static double                getConsumo()                        { 
-        consumo = 0;
-        for (int i=0; i<getProductoList().size(); i++)
-            consumo += (getProductoList().get(i).getPrecio()*getProductoList().get(i).getCantidad());
+    public static double getConsumo() {
+        int consumo = 0;
+        for (int i = 0; i< getProductList().size(); i++)
+            consumo += (
+                    getProductList().get(i).getPrecio()*
+                            getProductList().get(i).getCantidad());
         return consumo;                           
     }
-    public static void                  imprimir()                          {
+    public static void print() {
         nroReporte++;
-        ArrayList<ISellable> list = PRODUCTOLIST;
-        list.sort((ISellable o1, ISellable o2) -> { return o1.getID() - o2.getID(); });
-        
-        PRINTEROPTIONS.resetAll();
-        PRINTEROPTIONS.initialize();
-        PRINTEROPTIONS.feedBack((byte)2);
-        PRINTEROPTIONS.setTextLeft(IPrintable.billHeader());
-        PRINTEROPTIONS.setFont(2, true);
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextLeft(IPrintable.dateTimeHeader(Calendar.getInstance(),0));
-        PRINTEROPTIONS.setTextLeft("Turno: " + nroReporte);                 PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter(" - Entrega De Turno - ");             PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextLeft("Nro.  Item                    Prec  #   SubT");        
-        PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                  PRINTEROPTIONS.newLine();
 
-        ISellable aux;
-        String spaces;
-        for (int i=0; i<list.size(); i++){
-            aux = list.get(i);
-            
-            String nombre = aux.getNombre(); spaces = "";
-            if (nombre.length()<22) for (int j=0;j<23-nombre.length();j++){ spaces += " "; }
-            else                    nombre = aux.getNombre().substring(0, 22)+" ";
-            nombre = nombre.concat(spaces); 
-            
-            String cantidad = String.valueOf((int)aux.getCantidad()); spaces = ""; 
-            for (int j=0;j<2-cantidad.length();j++){ spaces += " "; }
-            cantidad = spaces.concat(cantidad);
-            
-            String precio = String.valueOf((int) aux.getPrecio()); spaces = ""; 
-            for (int j=0;j<5-precio.length();j++){ spaces += " "; }
-            precio = spaces.concat(precio);
-            
-            String subT = String.valueOf((int)(aux.getPrecio()*aux.getCantidad())); spaces = ""; 
-            for (int j=0;j<5-subT.length();j++){ spaces += " "; }
-            subT = spaces.concat(subT);
-            
-            PRINTEROPTIONS.setTextLeft(aux.getID()+"  "+nombre+precio+" "+cantidad+"  "+subT);
-            PRINTEROPTIONS.newLine();
+        PRINTER.resetAll();
+        PRINTER.initialize();
+        PRINTER.feedBack((byte)2);
+        PRINTER.setTextLeft(IPrintable.billHeader());
+        PRINTER.setFont(2, true);
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+        PRINTER.setTextLeft(
+                IPrintable.dateTimeHeader(Calendar.getInstance(),0));
+        PRINTER.setTextLeft("Turno: " + nroReporte);        PRINTER.newLine();
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+        PRINTER.setTextCenter(" - Entrega De Turno - ");    PRINTER.newLine();
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+        PRINTER.setTextLeft("Nro.  Item                 Prec  #   SubT   ");
+        PRINTER.newLine();
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+
+        //PRODUCT_LIST.sort((ISellable o1, ISellable o2) -> { return o1.getID() - o2.getID(); });
+        PRODUCT_LIST.sort(Comparator.comparingInt(IInventariable::getID));
+        for (ISellable product : PRODUCT_LIST) {
+
+            String id = String.valueOf(product.getID());
+            String nombre = product.getNombre();
+            String precio = String.valueOf((int) product.getPrecio());
+            String cantidad = String.valueOf((int) product.getCantidad());
+            String subT = String.valueOf(
+                    (int) (product.getPrecio()* product.getCantidad()));
+
+
+            id = id.concat(addSpaces(6 - id.length()));
+            nombre = (nombre.length()<21)?
+                    nombre.concat(addSpaces(21-nombre.length())):
+                    nombre.substring(0, 20).concat(" ");
+            precio = addSpaces(6 - precio.length()).concat(precio);
+            cantidad = addSpaces(4 - cantidad.length()).concat(cantidad);
+            subT = addSpaces(7 - subT.length()).concat(subT);
+
+            PRINTER.setTextLeft(id+nombre+precio+cantidad+subT);
+            PRINTER.newLine();
         }
         
-        PRINTEROPTIONS.addLineSeperator();                                   PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextRight("Total: "+(int)getConsumo());    PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.addLineSeperator();                                   PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Total sin incluir la \"Base\" ");      PRINTEROPTIONS.newLine();
-        PRINTEROPTIONS.setTextCenter("Recuerde entregar la estacion en Buen Estado");
-        PRINTEROPTIONS.feed((byte)3);
-        PRINTEROPTIONS.finitWithDrawer();
-        System.out.print("-------------------------");
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+        PRINTER.setTextRight("Total: "+(int)getConsumo());  PRINTER.newLine();
+        PRINTER.addLineSeperator();                         PRINTER.newLine();
+        PRINTER.setTextCenter("Total sin incluir la \"Base\" ");
+        PRINTER.newLine();
+        PRINTER.setTextCenter("Recuerde entregar la estacion en Buen Estado");
+        PRINTER.feed((byte)3);
+        PRINTER.feedCutAndDrawerKick();
+        PRINTER.printAll();
         if (showMesgSys) System.out.print("-------------------------");
-        if (showMesgSys) System.out.print(PRINTEROPTIONS.finalCommandSet());
-        PrinterOptions.feedPrinter(PRINTEROPTIONS.finalCommandSet().getBytes());
+        if (showMesgSys) System.out.print(PRINTER.finalCommandSet());
     }
     
     private static int nroReporte = 0;
-    private static int consumo = 0;
-    private static final ArrayList<ISellable> PRODUCTOLIST = new ArrayList<>();
-    private static final PrinterOptions PRINTEROPTIONS = new PrinterOptions();
+    private static final ArrayList<ISellable> PRODUCT_LIST = new ArrayList<>();
+    private static final PointOfServicePrinter PRINTER = new PointOfServicePrinter();
 
+    private static String addSpaces(int spaces){
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int j = 0; j < spaces; j++) {
+            stringBuilder.append(" ");
+        }
+        return stringBuilder.toString();
+    }
 }
 

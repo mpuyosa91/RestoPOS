@@ -63,15 +63,12 @@ public class InventarioPanel extends javax.swing.JPanel{
         frameList.add(new ListFrame(contextFrame,DeInventarioType.Producto));           i++;
         frameList.add(new ListFrame(contextFrame,DeInventarioType.DeLaCarta));          i++;
         btnList.get(i).setEnabled(false); i++;
-        btnList.get(i).addActionListener((ActionEvent e) -> {
-            IInventariable.toThermalPrinter(generalController.SUBPRODUCTODTO);
-        }); i++;
-        btnList.get(i).addActionListener((ActionEvent e) -> {
-            ISellable.toThermalPrinter(generalController.PRODUCTODTO);
-        }); i++;
-        btnList.get(i).addActionListener((ActionEvent e) -> {
-            ISellable.toThermalPrinter(generalController.DELACARTADTO);
-        }); i++;
+        btnList.get(i).addActionListener((ActionEvent e) ->
+                IInventariable.toThermalPrinter(generalController.SUBPRODUCTODTO)); i++;
+        btnList.get(i).addActionListener((ActionEvent e) ->
+                IInventariable.toThermalPrinter(generalController.PRODUCTODTO)); i++;
+        btnList.get(i).addActionListener((ActionEvent e) ->
+                IInventariable.toThermalPrinter(generalController.DELACARTADTO));
     }
     
     private void moveComponents(){

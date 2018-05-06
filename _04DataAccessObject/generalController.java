@@ -35,7 +35,7 @@ import java.util.ArrayList;
  */
 public interface generalController {
     
-    public static boolean syncDataWithServer(){
+    static boolean syncDataWithServer(){
         boolean r;
         WindowConsole.print("     Getting model data... \n");
         r = generalController.DB.getProductsAndSupply();
@@ -49,7 +49,7 @@ public interface generalController {
         return r;
     }
         
-    public static Inventory getModel(DeInventarioType type){
+    static Inventory getModel(DeInventarioType type){
         Inventory r = null;
         switch (type){
             case Ingrediente:
@@ -68,11 +68,11 @@ public interface generalController {
         return r;
     }
         
-    public static <G extends Inventory> void insertProduct(G dto){
+    static <G extends Inventory> void insertProduct(G dto){
         generalController.insertProductInItsOwnTree(dto);
         generalController.DB.insertTreeElement(dto);
     }
-    public static <G extends Inventory> void updateProduct(G dto){
+    static <G extends Inventory> void updateProduct(G dto){
         switch (dto.getClase()){
             case Ingrediente:
                 IngredienteDTO dto1 = (IngredienteDTO) dto;
@@ -93,29 +93,28 @@ public interface generalController {
         }
         generalController.DB.updateTreeElement(dto);
     }
-    public static <G extends Inventory> void delete(G node){
+    static <G extends Inventory> void delete(G node){
         
     }
     
-    public static void getTurnoFacturation(){
-        ReporteTurno.flushProductoList();
+    static void getTurnoFacturation(){
+        ReporteTurno.flushProductList();
         Bill aux = DB.getTodayBills();
-        while (aux!=null) {   
-            ArrayList<ISellable> list = aux.getProductoList();
+        while (aux!=null) {
             ProductoDTO auxProducto; DeLaCartaDTO auxDeLaCarta;
-            for (int j=0; j<list.size(); j++){ 
-                if (list.get(j).getClass()==ProductoDTO.class) {
-                    auxProducto = new ProductoDTO((ProductoDTO) list.get(j));
-                    ReporteTurno.addProductoList(auxProducto);
+            for (ISellable aList : aux.getProductoList()) {
+                if (aList.getClass() == ProductoDTO.class) {
+                    auxProducto = new ProductoDTO((ProductoDTO) aList);
+                    ReporteTurno.addToProductList(auxProducto);
                 }
-                if (list.get(j).getClass()==DeLaCartaDTO.class){
-                    auxDeLaCarta = new DeLaCartaDTO((DeLaCartaDTO) list.get(j));
-                    ReporteTurno.addProductoList(auxDeLaCarta);
+                if (aList.getClass() == DeLaCartaDTO.class) {
+                    auxDeLaCarta = new DeLaCartaDTO((DeLaCartaDTO) aList);
+                    ReporteTurno.addToProductList(auxDeLaCarta);
                 }
             }
             aux = aux.getDown();
         }
-        ArrayList<ISellable> list = ReporteTurno.getProductoList();
+        ArrayList<ISellable> list = ReporteTurno.getProductList();
         if (list!=null) for (int j=0; j<list.size()-1; j++){
             for (int k=j+1;k<list.size();k++){
                 if (list.get(j).getID()==list.get(k).getID()){
@@ -127,28 +126,27 @@ public interface generalController {
                     list.remove(list.get(k));
         }   }   }
         ConfigurationDTO.setConfigurationValueAndPutOnServer(Label.TurnoActual, ConfigurationDTO.getConfigurationValue(Label.TurnoActual)+1);
-        ReporteTurno.imprimir();
+        ReporteTurno.print();
     }
     
-    public static void getDayFacturation(){
-        ReporteTurno.flushProductoList();
+    static void getDayFacturation(){
+        ReporteTurno.flushProductList();
         Bill aux = DB.getTodayBills();
-        while (aux!=null) {   
-            ArrayList<ISellable> list = aux.getProductoList();
+        while (aux!=null) {
             ProductoDTO auxProducto; DeLaCartaDTO auxDeLaCarta;
-            for (int j=0; j<list.size(); j++){ 
-                if (list.get(j).getClass()==ProductoDTO.class) {
-                    auxProducto = new ProductoDTO((ProductoDTO) list.get(j));
-                    ReporteTurno.addProductoList(auxProducto);
+            for (ISellable product : aux.getProductoList()) {
+                if (product.getClass() == ProductoDTO.class) {
+                    auxProducto = new ProductoDTO((ProductoDTO) product);
+                    ReporteTurno.addToProductList(auxProducto);
                 }
-                if (list.get(j).getClass()==DeLaCartaDTO.class){
-                    auxDeLaCarta = new DeLaCartaDTO((DeLaCartaDTO) list.get(j));
-                    ReporteTurno.addProductoList(auxDeLaCarta);
+                if (product.getClass() == DeLaCartaDTO.class) {
+                    auxDeLaCarta = new DeLaCartaDTO((DeLaCartaDTO) product);
+                    ReporteTurno.addToProductList(auxDeLaCarta);
                 }
             }
             aux = aux.getDown();
         }
-        ArrayList<ISellable> list = ReporteTurno.getProductoList();
+        ArrayList<ISellable> list = ReporteTurno.getProductList();
         if (list!=null) for (int j=0; j<list.size()-1; j++){
             for (int k=j+1;k<list.size();k++){
                 if (list.get(j).getID()==list.get(k).getID()){
@@ -159,20 +157,20 @@ public interface generalController {
                 if (list.get(j).getID()==list.get(k).getID()){
                     list.remove(list.get(k));
         }   }   }
-        ReporteTurno.imprimir();
+        ReporteTurno.print();
     }
     
 //******************************************************************************
 //********************************DataTreatement********************************
 //****************************************************************************** 
-    public static DB_MySQL DB                              = new DB_MySQL();
-    public static final ArrayList<IClientable> CLIENTELIST  = createClienteList();
-    public static final IngredienteDTO  INGREDIENTEDTO      = new IngredienteDTO(null,1,"Ingredientes");
-    public static final SubProductoDTO  SUBPRODUCTODTO      = new SubProductoDTO(null,2,"SubProductos");
-    public static final ProductoDTO     PRODUCTODTO         = new ProductoDTO(null,3,"Productos");
-    public static final DeLaCartaDTO    DELACARTADTO        = new DeLaCartaDTO(null,4,"DeLaCarta");
+    DB_MySQL DB                              = new DB_MySQL();
+    ArrayList<IClientable> CLIENTELIST  = createClienteList();
+    IngredienteDTO  INGREDIENTEDTO      = new IngredienteDTO(null,1,"Ingredientes");
+    SubProductoDTO  SUBPRODUCTODTO      = new SubProductoDTO(null,2,"SubProductos");
+    ProductoDTO     PRODUCTODTO         = new ProductoDTO(null,3,"Productos");
+    DeLaCartaDTO    DELACARTADTO        = new DeLaCartaDTO(null,4,"DeLaCarta");
     
-    public static ArrayList<IClientable> createClienteList(){
+    static ArrayList<IClientable> createClienteList(){
         WindowConsole.print("     Creating Client List... \n");
         ArrayList<IClientable> r = new ArrayList<>();
         r.add(new PuntoDeVenta());
@@ -185,10 +183,10 @@ public interface generalController {
         return r;
     }
     
-    public static Inventory getProduct(int ID){
+    static Inventory getProduct(int ID){
         Inventory r = null;
         int l = (int) floor(log10(ID));
-        int first = (int) (ID/(int)pow(10,l));
+        int first = (ID/(int)pow(10,l));
         switch (first){
             case 1:
                 r = generalController.getProduct(ID, getModel(DeInventarioType.Ingrediente));
@@ -205,7 +203,7 @@ public interface generalController {
         }
         return r;
     }
-    public static <G extends Inventory> G getProduct(int ID, G tree){
+    static <G extends Inventory> G getProduct(int ID, G tree){
         boolean showMesgSys = false;
         G r = null;
         int la = (int) floor(log10(ID))+1,lb;
@@ -226,7 +224,7 @@ public interface generalController {
         return r;
     }
     
-    public static int getAviableID(int ID){
+    static int getAviableID(int ID){
         int r = 0;
         int l = (int) floor(log10(ID));
         int first = (int) (ID/(int)pow(10,l));
@@ -246,7 +244,7 @@ public interface generalController {
         }
         return r;
     }
-    public static <G extends Inventory> G getDTOFather(int ID, int pos, G tree){
+    static <G extends Inventory> G getDTOFather(int ID, int pos, G tree){
         boolean showMesgSys = false;
         G r = null, aux; 
         int len = (int) floor(log10(ID));
@@ -266,7 +264,7 @@ public interface generalController {
         }
         return r;
     }
-    public static <G extends Inventory> int getAviableID(G tree, int ID){
+    static <G extends Inventory> int getAviableID(G tree, int ID){
         boolean showMesgSys = false, aviable=false;
         int r=0, aux;
         if (showMesgSys) System.out.print("\n--> getAviableID("+tree+","+String.valueOf(ID)+")");
@@ -286,7 +284,7 @@ public interface generalController {
         return r;
     }
     
-    public static <G extends Inventory> String getProductUsages(G dto){
+    static <G extends Inventory> String getProductUsages(G dto){
         String r = "";
         switch (dto.getClase()){
             case Ingrediente:
@@ -301,7 +299,7 @@ public interface generalController {
         return r;
     }
     
-    public static <G extends Inventory> void insertProductInItsOwnTree(G node){
+    static <G extends Inventory> void insertProductInItsOwnTree(G node){
         int ID = node.getID();
         int l = (int) floor(log10(ID));
         int first = (int) (ID/(int)pow(10,l));
@@ -320,7 +318,7 @@ public interface generalController {
                 break;
         }
     }
-    public static <G extends Inventory> void insertProductInList(G node, G tree){
+    static <G extends Inventory> void insertProductInList(G node, G tree){
         boolean showMesgSys = false;
         if (showMesgSys) System.out.print("\nInsertNodeInTree: ");
         String nodeID = String.valueOf(node.getID());
@@ -354,14 +352,14 @@ public interface generalController {
     }
        
     
-    public static void insertBill(IClientable cliente, int factura, boolean printBill){
+    static void insertBill(IClientable cliente, int factura, boolean printBill){
         Bill bill = new Bill(cliente,factura);
         if (printBill) bill.print();
         else bill.openTrack();
         DB.insertBill(bill);
     }
     
-    public static void insertBill(IClientable cliente, boolean printBill){
+    static void insertBill(IClientable cliente, boolean printBill){
         generalController.insertBill(cliente, (int) ConfigurationDTO.getConfigurationValueAndIncrement(ConsecutivoFacturas,1),printBill);
     }
 

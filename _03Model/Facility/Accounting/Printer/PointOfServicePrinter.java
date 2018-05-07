@@ -93,9 +93,8 @@ public class PointOfServicePrinter {
     public String finalCommandSet() {
         return commandSet;
     }
-    
-    public boolean printAll() {
-        boolean r = false;
+
+    public void printAll() {
         try {
 
             Doc doc = new SimpleDoc(
@@ -116,12 +115,9 @@ public class PointOfServicePrinter {
                     .print(doc, null);
 
             SurveillanceReport.log("Bill Print.");
-            r = true;
-
         } catch(Exception e) {
             SurveillanceReport.generic(Thread.currentThread().getStackTrace(), e);
         }
-        return r;
     }
 
     private String commandSet;

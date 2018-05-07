@@ -63,12 +63,32 @@ public class TableTreeElements_MySQL {
             query = query + dto.getNombre() + "', '";
             query = query + "FALSE" + "')";
         }
-        try {
-            sendQuery(query).close();
-            if (showMesgSys) System.out.println(query);
-        } catch (SQLException ex) {
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
         }
+        if (showMesgSys) System.out.println(query);
     }
 
     public static <G extends IInventariable> void update(G dto) {        
@@ -83,12 +103,32 @@ public class TableTreeElements_MySQL {
             query += "Nombre='"+dto.getNombre()+"', ";
             query += "WHERE ID="+dto.getID()+";";
         }
-        try {
-            sendQuery(query).close();
-            if (showMesgSys) System.out.println(query);
-        } catch (SQLException ex) {
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
         }
+        if (showMesgSys) System.out.println(query);
     }
 
     /*
@@ -119,68 +159,6 @@ public class TableTreeElements_MySQL {
             + "Cantidad double, \n"
             + "Precio int, \n"
             + "PRIMARY KEY (ID));");
-        try {
-            sendQuery(query).close();
-            if (showMesgSys) System.out.println(query);
-            WindowConsole.print("          ... Status of table \"" + TABLENAME + "\" creation, CREATED.\n");
-        } catch (SQLException ex) {
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
-        }
-    }
-
-    private static boolean loadDataFromServer() throws SQLException{
-        ResultSet resultSet;
-        int id;
-        String query = QUERYSELECTFROM;
-        if (showMesgSys) System.out.println(query);
-        resultSet = sendQuery(query);
-        while (resultSet.next()) {
-            id = resultSet.getInt("ID");
-            if (showMesgSys) System.out.println(id);
-            switch ((int) (id / pow(10, floor(log10(id))))) {
-                case 1:
-                    IngredienteDTO dto1 = new IngredienteDTO((IngredienteDTO)generalController.getProduct((id < 100)?(id / 10):(id / 1000)), id, resultSet.getString("Nombre"));
-                    dto1.setFinal(resultSet.getBoolean("EsFinal"));
-                    if (dto1.isFinal()) dto1.setCantidad(resultSet.getDouble("Cantidad"), resultSet.getString("Unidad"));
-                    if (showMesgSys) System.out.println(dto1);
-                    generalController.insertProductInItsOwnTree(dto1);
-                    break;
-                case 2:
-                    SubProductoDTO dto2 = new SubProductoDTO((SubProductoDTO)generalController.getProduct((id < 100)?(id / 10):(id / 1000)), id, resultSet.getString("Nombre"));
-                    dto2.setFinal(resultSet.getBoolean("EsFinal"));
-                    if (dto2.isFinal()) dto2.setCantidad(resultSet.getDouble("Cantidad"), resultSet.getString("Unidad"));
-                    if (showMesgSys) System.out.println(dto2);
-                    generalController.insertProductInItsOwnTree(dto2);
-                    break;
-                case 3:
-                    ProductoDTO dto3 = new ProductoDTO((ProductoDTO)generalController.getProduct((id < 100)?(id / 10):(id / 1000)), id, resultSet.getString("Nombre"));
-                    dto3.setFinal(resultSet.getBoolean("EsFinal"));
-                    if (dto3.isFinal()) dto3.setCantidad(resultSet.getDouble("Cantidad"), resultSet.getString("Unidad"));
-                    if (dto3.isFinal()) dto3.setPrecio(resultSet.getDouble("Precio"));
-                    if (showMesgSys) System.out.println(dto3);
-                    generalController.insertProductInItsOwnTree(dto3);
-                    break;
-                case 4:
-                    DeLaCartaDTO dto4 = new DeLaCartaDTO((DeLaCartaDTO)generalController.getProduct((id < 100)?(id / 10):(id / 1000)), id, resultSet.getString("Nombre"));
-                    dto4.setFinal(resultSet.getBoolean("EsFinal"));
-                    if (dto4.isFinal()) dto4.setCantidad(resultSet.getDouble("Cantidad"), resultSet.getString("Unidad"));
-                    if (dto4.isFinal()) dto4.setPrecio(resultSet.getDouble("Precio"));
-                    if (showMesgSys) System.out.println(dto4);
-                    generalController.insertProductInItsOwnTree(dto4);
-                    break;
-            }
-        }
-        if(showMesgSys) System.out.println(generalController.getModel(Inventory.DeInventarioType.Ingrediente).treeToString());
-        if(showMesgSys) System.out.println(generalController.getModel(Inventory.DeInventarioType.SubProducto).treeToString());
-        if(showMesgSys) System.out.println(generalController.getModel(Inventory.DeInventarioType.Producto).treeToString());
-        if(showMesgSys) System.out.println(generalController.getModel(Inventory.DeInventarioType.DeLaCarta).treeToString());
-        WindowConsole.print("          ... Data from server, LOADED.\n");
-        resultSet.close();
-        return true;
-    }
-
-    private static ResultSet sendQuery(String query){
-        ResultSet resultSet = null;
         Statement statement = null;
         try{
             Class.forName(JDBC_DRIVER);
@@ -189,7 +167,6 @@ public class TableTreeElements_MySQL {
                             .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
             statement = connection.createStatement();
             statement.execute(query);
-            resultSet = statement.getResultSet();
         } catch (ClassNotFoundException e) {
             SurveillanceReport
                     .generic(Thread.currentThread().getStackTrace(),e);
@@ -207,7 +184,83 @@ public class TableTreeElements_MySQL {
                                 Thread.currentThread().getStackTrace(),e,query);
             }
         }
-        return resultSet;
+        if (showMesgSys) System.out.println(query);
+        WindowConsole.print("          ... Status of table \"" + TABLENAME + "\" creation, CREATED.\n");
+    }
+
+    private static boolean loadDataFromServer() throws SQLException{
+        int id;
+        String query = QUERYSELECTFROM;
+        if (showMesgSys) System.out.println(query);
+        ResultSet resultSet = null;
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+            resultSet = statement.getResultSet();
+            while (resultSet.next()) {
+                id = resultSet.getInt("ID");
+                if (showMesgSys) System.out.println(id);
+                switch ((int) (id / pow(10, floor(log10(id))))) {
+                    case 1:
+                        IngredienteDTO dto1 = new IngredienteDTO((IngredienteDTO)generalController.getProduct((id < 100)?(id / 10):(id / 1000)), id, resultSet.getString("Nombre"));
+                        dto1.setFinal(resultSet.getBoolean("EsFinal"));
+                        if (dto1.isFinal()) dto1.setCantidad(resultSet.getDouble("Cantidad"), resultSet.getString("Unidad"));
+                        if (showMesgSys) System.out.println(dto1);
+                        generalController.insertProductInItsOwnTree(dto1);
+                        break;
+                    case 2:
+                        SubProductoDTO dto2 = new SubProductoDTO((SubProductoDTO)generalController.getProduct((id < 100)?(id / 10):(id / 1000)), id, resultSet.getString("Nombre"));
+                        dto2.setFinal(resultSet.getBoolean("EsFinal"));
+                        if (dto2.isFinal()) dto2.setCantidad(resultSet.getDouble("Cantidad"), resultSet.getString("Unidad"));
+                        if (showMesgSys) System.out.println(dto2);
+                        generalController.insertProductInItsOwnTree(dto2);
+                        break;
+                    case 3:
+                        ProductoDTO dto3 = new ProductoDTO((ProductoDTO)generalController.getProduct((id < 100)?(id / 10):(id / 1000)), id, resultSet.getString("Nombre"));
+                        dto3.setFinal(resultSet.getBoolean("EsFinal"));
+                        if (dto3.isFinal()) dto3.setCantidad(resultSet.getDouble("Cantidad"), resultSet.getString("Unidad"));
+                        if (dto3.isFinal()) dto3.setPrecio(resultSet.getDouble("Precio"));
+                        if (showMesgSys) System.out.println(dto3);
+                        generalController.insertProductInItsOwnTree(dto3);
+                        break;
+                    case 4:
+                        DeLaCartaDTO dto4 = new DeLaCartaDTO((DeLaCartaDTO)generalController.getProduct((id < 100)?(id / 10):(id / 1000)), id, resultSet.getString("Nombre"));
+                        dto4.setFinal(resultSet.getBoolean("EsFinal"));
+                        if (dto4.isFinal()) dto4.setCantidad(resultSet.getDouble("Cantidad"), resultSet.getString("Unidad"));
+                        if (dto4.isFinal()) dto4.setPrecio(resultSet.getDouble("Precio"));
+                        if (showMesgSys) System.out.println(dto4);
+                        generalController.insertProductInItsOwnTree(dto4);
+                        break;
+                }
+            }
+            if(showMesgSys) System.out.println(generalController.getModel(Inventory.DeInventarioType.Ingrediente).treeToString());
+            if(showMesgSys) System.out.println(generalController.getModel(Inventory.DeInventarioType.SubProducto).treeToString());
+            if(showMesgSys) System.out.println(generalController.getModel(Inventory.DeInventarioType.Producto).treeToString());
+            if(showMesgSys) System.out.println(generalController.getModel(Inventory.DeInventarioType.DeLaCarta).treeToString());
+            WindowConsole.print("          ... Data from server, LOADED.\n");
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+                if (resultSet != null){
+                    resultSet.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
+        }
+        return true;
     }
 
 }

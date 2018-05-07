@@ -56,11 +56,32 @@ public class TableBills_MySQL {
         query += String.valueOf(dto.getTurno())+ ", ";
         query += dto.getConsumo()+ ")";
         try {
-            sendQuery(query).close();
+            Statement statement = null;
+            try{
+                Class.forName(JDBC_DRIVER);
+                Connection connection =
+                        DriverManager
+                                .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+                statement = connection.createStatement();
+                statement.execute(query);
+            } catch (ClassNotFoundException e) {
+                SurveillanceReport
+                        .generic(Thread.currentThread().getStackTrace(),e);
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+            } finally {
+                try{
+                    if (statement != null){
+                        statement.close();
+                    }
+                } catch (SQLException e) {
+                    SurveillanceReport
+                            .reportSQL(
+                                    Thread.currentThread().getStackTrace(),e,query);
+                }
+            }
             if (showMesgSys) System.out.println(query);
-        } catch (SQLException e) {
-            SurveillanceReport
-                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
         } catch(NullPointerException ex) {
             SurveillanceReport
                     .generic(Thread.currentThread().getStackTrace(),ex);
@@ -74,17 +95,35 @@ public class TableBills_MySQL {
             query2 += producto.getPrecio()+ ")";
             return query2;
         }).forEachOrdered((query2) -> {
+            Statement statement = null;
             try{
-                sendQuery(query2).close();
-                if (showMesgSys) System.out.println(query2);
-            }
-            catch(SQLException ex){
+                Class.forName(JDBC_DRIVER);
+                Connection connection =
+                        DriverManager
+                                .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+                statement = connection.createStatement();
+                statement.execute(query2);
+            } catch (ClassNotFoundException e) {
                 SurveillanceReport
-                        .reportSQL(
-                                Thread.currentThread().getStackTrace()
-                                ,ex,query2);
+                        .generic(Thread.currentThread().getStackTrace(),e);
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(Thread.currentThread().getStackTrace()
+                                ,e,query2);
+            } finally {
+                try{
+                    if (statement != null){
+                        statement.close();
+                    }
+                } catch (SQLException e) {
+                    SurveillanceReport
+                            .reportSQL(
+                                    Thread.currentThread().getStackTrace
+                                            (),e,query2);
+                }
             }
-        });     
+            if (showMesgSys) System.out.println(query2);
+        });
     }
 
     private static final String JDBC_DRIVER = generalController.DB.getDriver();
@@ -140,13 +179,32 @@ public class TableBills_MySQL {
                         + "Turno integer,\n"
                         + "Consumo integer,\n"
                         + "PRIMARY KEY (ID));");
-        try {
-            sendQuery(query).close();
-            WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED.\n");
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
         }
-        catch (SQLException ex){
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
-        }
+        WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED.\n");
         query =  QUERYCREATETABLE.concat(TABLECONTENTNAME+" ( "
                         + "ID serial, "
                         + "bill integer REFERENCES "+TABLENAME+"(ID),"
@@ -154,39 +212,80 @@ public class TableBills_MySQL {
                         + "quantity integer, "
                         + "price integer, "
                         + "PRIMARY KEY (ID));");
-        try {
-            sendQuery(query).close();
-            WindowConsole.print("          ... Creationg of Table \""+TABLECONTENTNAME+"\" CREATED.\n");
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
         }
-        catch (SQLException ex){
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
-        }
+        WindowConsole.print("          ... Creationg of Table \""+TABLECONTENTNAME+"\" CREATED.\n");
     }
     
     private static void createTodayBillList(String query) throws SQLException{
         Bill aux = null;
         if (showMesgSys)    System.out.println(query);
-        ResultSet resultSet = sendQuery(query);
-        while(resultSet.next()){
-            int     rs_ID = resultSet.getInt("ID");
-            String  rs_identifier = resultSet.getString("Identifier");
-            int     turno = resultSet.getInt("Turno");
-            Calendar rs_date = Calendar.getInstance(); rs_date.setTime(resultSet.getTimestamp("FechaHora"));
-            double  rs_duracion = resultSet.getDouble("TiempoPermanencia_Min")*60000;
-            if (aux == null) {
-                facturaDTO = new Bill(rs_ID,turno,rs_identifier,rs_date,rs_duracion);
-                aux = facturaDTO;
-            }
-            else {
-                aux.setDown(new Bill(rs_ID,turno,rs_identifier,rs_date,rs_duracion));
-                aux = aux.getDown();
-            }
-        }
+        ResultSet resultSet;
+        Statement statement = null;
         try{
-            resultSet.close();
-        }catch (NullPointerException ex){
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+            resultSet = statement.getResultSet();
+            while(resultSet.next()){
+                int     rs_ID = resultSet.getInt("ID");
+                String  rs_identifier = resultSet.getString("Identifier");
+                int     turno = resultSet.getInt("Turno");
+                Calendar rs_date = Calendar.getInstance(); rs_date.setTime(resultSet.getTimestamp("FechaHora"));
+                double  rs_duracion = resultSet.getDouble("TiempoPermanencia_Min")*60000;
+                if (aux == null) {
+                    facturaDTO = new Bill(rs_ID,turno,rs_identifier,rs_date,rs_duracion);
+                    aux = facturaDTO;
+                }
+                else {
+                    aux.setDown(new Bill(rs_ID,turno,rs_identifier,rs_date,rs_duracion));
+                    aux = aux.getDown();
+                }
+            }
+            try{
+                resultSet.close();
+            }catch (NullPointerException ex){
+                SurveillanceReport
+                        .generic(Thread.currentThread().getStackTrace(),ex);
+            }
+        } catch (ClassNotFoundException e) {
             SurveillanceReport
-                    .generic(Thread.currentThread().getStackTrace(),ex);
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
         }
 
         if (showMesgSys)    System.out.println("\n\nFacturas Del Dia\n"+facturaDTO);
@@ -216,31 +315,7 @@ public class TableBills_MySQL {
     private static void insertContentInBill(Bill aux){
         ResultSet resultSet = null;
         String query = QUERYSELECTFROM+TABLECONTENTNAME+" WHERE bill="+aux.getID()+";";
-        try{
-            if (showMesgSys)    System.out.println(query);
-            resultSet = sendQuery(query);
-            while (resultSet.next()){
-                aux.getProductoList().add((ISellable) getCopyOf(String.valueOf(resultSet.getInt("element")),resultSet.getInt("quantity")));
-            }
-        }
-        catch (SQLException ex1){
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,query);
-        }
-        finally {
-            try{
-                if (resultSet != null) {
-                    resultSet.close();
-                }
-            }catch (NullPointerException ex){
-                SurveillanceReport.generic(Thread.currentThread().getStackTrace(),ex);
-            } catch (SQLException e) {
-                SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),e,query);
-            }
-        }
-    }
-
-    private static ResultSet sendQuery(String query){
-        ResultSet resultSet = null;
+        if (showMesgSys)    System.out.println(query);
         Statement statement = null;
         try{
             Class.forName(JDBC_DRIVER);
@@ -250,6 +325,9 @@ public class TableBills_MySQL {
             statement = connection.createStatement();
             statement.execute(query);
             resultSet = statement.getResultSet();
+            while (resultSet.next()){
+                aux.getProductoList().add((ISellable) getCopyOf(String.valueOf(resultSet.getInt("element")),resultSet.getInt("quantity")));
+            }
         } catch (ClassNotFoundException e) {
             SurveillanceReport
                     .generic(Thread.currentThread().getStackTrace(),e);
@@ -261,12 +339,15 @@ public class TableBills_MySQL {
                 if (statement != null){
                     statement.close();
                 }
+                if (resultSet != null) {
+                    resultSet.close();
+                }
             } catch (SQLException e) {
                 SurveillanceReport
                         .reportSQL(
                                 Thread.currentThread().getStackTrace(),e,query);
             }
         }
-        return resultSet;
     }
+
 }

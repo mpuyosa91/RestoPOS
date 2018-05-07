@@ -23,12 +23,28 @@ public class TableConfiguration_MySQL {
     
     static boolean getAndLoadConfigurationFromServer(){
         boolean r = false;
+        Statement statement = null;
+        Connection connection = null;
         ResultSet resultSet = null;
         String query = QUERYSELECTFROM;
         WindowConsole.print("          Atempting to load configuration from server... \n");
         try {
             if (showMesgSys) System.out.println(query);
-            resultSet=sendQuery(query);
+            try{
+                Class.forName(JDBC_DRIVER);
+                connection =
+                        DriverManager
+                                .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+                statement = connection.createStatement();
+                statement.execute(query);
+                resultSet = statement.getResultSet();
+            } catch (ClassNotFoundException e) {
+                SurveillanceReport
+                        .generic(Thread.currentThread().getStackTrace(),e);
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+            }
             if (resultSet!=null) {
                 while (resultSet.next()) {
                     ConfigurationDTO
@@ -52,8 +68,15 @@ public class TableConfiguration_MySQL {
             }
         } finally {
             try {
-                if (resultSet!=null)
+                if (statement != null){
+                    statement.close();
+                }
+                if (connection != null){
+                    connection.close();
+                }
+                if (resultSet!=null) {
                     resultSet.close();
+                }
             } catch (SQLException e) {
                 SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),e,query);
             }
@@ -74,7 +97,40 @@ public class TableConfiguration_MySQL {
         query += "ON DUPLICATE KEY UPDATE ";
         query += "Value = "+ConfigurationDTO.getValue(i)+";";
         try{
-            sendQuery(query).close();
+            ResultSet resultSet = null;
+            Statement statement = null;
+            Connection connection = null;
+            try{
+                Class.forName(JDBC_DRIVER);
+                connection =
+                        DriverManager
+                                .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+                statement = connection.createStatement();
+                statement.execute(query);
+                resultSet = statement.getResultSet();
+            } catch (ClassNotFoundException e) {
+                SurveillanceReport
+                        .generic(Thread.currentThread().getStackTrace(),e);
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+            } finally {
+                try{
+                    if (statement != null){
+                        statement.close();
+                    }
+                    if (connection != null){
+                        connection.close();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    SurveillanceReport
+                            .reportSQL(
+                                    Thread.currentThread().getStackTrace(),e,query);
+                }
+            }
+            if (resultSet!=null)
+                resultSet.close();
             if (showMesgSys) System.out.println(query);
         } catch (SQLException ex){
             SurveillanceReport
@@ -97,30 +153,15 @@ public class TableConfiguration_MySQL {
                 + "Description varchar(30) CHARACTER SET utf8 COLLATE utf8_spanish2_ci NOT NULL,\n "
                 + "Value DOUBLE, \n"
                 + "PRIMARY KEY (Description));");
-        try {
-            sendQuery(query).close();
-            if (showMesgSys) System.out.println(query);
-            WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED.\n");
-            WindowConsole.print("          Attempting to populate Table->\""+TABLENAME+"\" in DB->\""+DBNAME+"\"... \n");
-            updateConfigurationToServer();
-            WindowConsole.print("          ... Initial data of Table \""+TABLENAME+"\" INSERTED.\n");
-        } catch (SQLException ex){
-            SurveillanceReport
-                    .reportSQL(Thread.currentThread().getStackTrace(),ex,query);
-        }
-    }
-
-    private static ResultSet sendQuery(String query){
-        ResultSet resultSet = null;
         Statement statement = null;
+        Connection connection = null;
         try{
             Class.forName(JDBC_DRIVER);
-            Connection connection =
+            connection =
                     DriverManager
                             .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
             statement = connection.createStatement();
             statement.execute(query);
-            resultSet = statement.getResultSet();
         } catch (ClassNotFoundException e) {
             SurveillanceReport
                     .generic(Thread.currentThread().getStackTrace(),e);
@@ -132,13 +173,21 @@ public class TableConfiguration_MySQL {
                 if (statement != null){
                     statement.close();
                 }
+                if (connection != null){
+                    connection.close();
+                }
             } catch (SQLException e) {
+                e.printStackTrace();
                 SurveillanceReport
                         .reportSQL(
                                 Thread.currentThread().getStackTrace(),e,query);
             }
         }
-        return resultSet;
+        if (showMesgSys) System.out.println(query);
+        WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED.\n");
+        WindowConsole.print("          Attempting to populate Table->\""+TABLENAME+"\" in DB->\""+DBNAME+"\"... \n");
+        updateConfigurationToServer();
+        WindowConsole.print("          ... Initial data of Table \""+TABLENAME+"\" INSERTED.\n");
     }
-    
+
 }

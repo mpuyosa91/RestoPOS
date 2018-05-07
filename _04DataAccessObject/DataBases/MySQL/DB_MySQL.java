@@ -31,7 +31,7 @@ public class DB_MySQL implements IDataBase{
     
     @Override public Statement  getStatement()                      { return STMT;                                                                  }
     @Override public String     getDBName()                         { return DBNAME;                                                                }
-    String               getDbUrl() { return GESTORLOCATION; }
+    String               getDbUrl() { return DBLOCATION; }
     String               getDriver() { return DRIVER; }
     String               getUser() { return DBUSER; }
     String               getPass() { return DBPASS; }

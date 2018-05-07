@@ -73,13 +73,32 @@ public class TableTreeElementsComposition_MySQL {
                 query += contained.getCantidad()+ ")";
                 return query;
             }).forEachOrdered((query) -> {
+                Statement statement = null;
                 try{
-                    sendQuery(query).close();
-                    if (showMesgSys) System.out.println(query);
+                    Class.forName(JDBC_DRIVER);
+                    Connection connection =
+                            DriverManager
+                                    .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+                    statement = connection.createStatement();
+                    statement.execute(query);
+                } catch (ClassNotFoundException e) {
+                    SurveillanceReport
+                            .generic(Thread.currentThread().getStackTrace(),e);
+                } catch (SQLException e) {
+                    SurveillanceReport
+                            .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+                } finally {
+                    try{
+                        if (statement != null){
+                            statement.close();
+                        }
+                    } catch (SQLException e) {
+                        SurveillanceReport
+                                .reportSQL(
+                                        Thread.currentThread().getStackTrace(),e,query);
+                    }
                 }
-                catch(SQLException ex){
-                    SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
-                }
+                if (showMesgSys) System.out.println(query);
             });
         }
     }
@@ -92,13 +111,32 @@ public class TableTreeElementsComposition_MySQL {
                 query += "WHERE container="+dto.getID()+" AND "+"contained="+contained.getID()+";";
                 return query;
             }).forEachOrdered((query) -> {
+                Statement statement = null;
                 try{
-                    sendQuery(query).close();
-                    if (showMesgSys) System.out.println(query);
+                    Class.forName(JDBC_DRIVER);
+                    Connection connection =
+                            DriverManager
+                                    .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+                    statement = connection.createStatement();
+                    statement.execute(query);
+                } catch (ClassNotFoundException e) {
+                    SurveillanceReport
+                            .generic(Thread.currentThread().getStackTrace(),e);
+                } catch (SQLException e) {
+                    SurveillanceReport
+                            .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+                } finally {
+                    try{
+                        if (statement != null){
+                            statement.close();
+                        }
+                    } catch (SQLException e) {
+                        SurveillanceReport
+                                .reportSQL(
+                                        Thread.currentThread().getStackTrace(),e,query);
+                    }
                 }
-                catch(SQLException ex){
-                    SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
-                }
+                if (showMesgSys) System.out.println(query);
             });
         }
     }
@@ -140,39 +178,84 @@ public class TableTreeElementsComposition_MySQL {
             + "Quantity real, "
             + "PRIMARY KEY (ID, Container, Contained));");
         WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED \n");
-        try {
-            sendQuery(query).close();
-            if (showMesgSys) System.out.println(query);
-        } catch (SQLException ex){
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
         }
+        if (showMesgSys) System.out.println(query);
     }
     
-    private static ResultSet getComposicionesList() throws SQLException{
-        ResultSet resultSet;
+    private static ResultSet getComposicionesList() {
         String query = QUERYSELECTFROM, rs_ID;
-        resultSet = sendQuery(query);
-        if (showMesgSys) System.out.println(query);
-        if (resultSet!=null) {
-            while (resultSet.next()){
-                rs_ID = String.valueOf(resultSet.getInt("Container"));
-                if (showMesgSys) System.out.println("ID: "+rs_ID);
-                switch(rs_ID.charAt(0)){
-                    case '1':
-                        setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
-                        break;
-                    case '2':        
-                        setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
-                        break;
-                    case '3':
-                        setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
-                        break;
-                    case '4':
-                        setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
-                        break;
+        ResultSet resultSet = null;
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+            resultSet = statement.getResultSet();
+            if (showMesgSys) System.out.println(query);
+            if (resultSet!=null) {
+                while (resultSet.next()){
+                    rs_ID = String.valueOf(resultSet.getInt("Container"));
+                    if (showMesgSys) System.out.println("ID: "+rs_ID);
+                    switch(rs_ID.charAt(0)){
+                        case '1':
+                            setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
+                            break;
+                        case '2':
+                            setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
+                            break;
+                        case '3':
+                            setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
+                            break;
+                        case '4':
+                            setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
+                            break;
+                    }
                 }
-            }   
-            if (showMesgSys) System.out.println(MESS_OK);
+                if (showMesgSys) System.out.println(MESS_OK);
+            }
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
         }
         return resultSet;
     }
@@ -218,37 +301,6 @@ public class TableTreeElementsComposition_MySQL {
                 ((IRetainerDeLaCarta) container).addToDeLaCartaList((DeLaCartaDTO) contained);
                 break;
         }
-    }
-
-    private static ResultSet sendQuery(String query){
-        ResultSet resultSet = null;
-        Statement statement = null;
-        try{
-            Class.forName(JDBC_DRIVER);
-            Connection connection =
-                    DriverManager
-                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
-            statement = connection.createStatement();
-            statement.execute(query);
-            resultSet = statement.getResultSet();
-        } catch (ClassNotFoundException e) {
-            SurveillanceReport
-                    .generic(Thread.currentThread().getStackTrace(),e);
-        } catch (SQLException e) {
-            SurveillanceReport
-                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
-        } finally {
-            try{
-                if (statement != null){
-                    statement.close();
-                }
-            } catch (SQLException e) {
-                SurveillanceReport
-                        .reportSQL(
-                                Thread.currentThread().getStackTrace(),e,query);
-            }
-        }
-        return resultSet;
     }
 
 }

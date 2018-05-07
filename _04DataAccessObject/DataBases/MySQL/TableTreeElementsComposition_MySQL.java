@@ -21,9 +21,9 @@ import _01View.WindowConsole;
 import static java.lang.Math.floor;
 import static java.lang.Math.log10;
 import static java.lang.Math.pow;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
+import java.sql.*;
+
 import _04DataAccessObject.generalController;
 
 /**
@@ -32,9 +32,8 @@ import _04DataAccessObject.generalController;
  */
 public class TableTreeElementsComposition_MySQL {
     public static boolean showMesgSys = false;
-    public static final String MESS_OK = "Menu Creado";
 
-    public static boolean getAndLoadModelComposition(){
+    static boolean getAndLoadModelComposition(){
         boolean r = false;
         ResultSet rs = null;
         WindowConsole.print("          Atempting to load compositions from server... \n");
@@ -51,6 +50,14 @@ public class TableTreeElementsComposition_MySQL {
                 r = getAndLoadModelComposition();
             }
             else SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex);
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),e);
+            }
         }
         return r;
     }
@@ -67,7 +74,7 @@ public class TableTreeElementsComposition_MySQL {
                 return query;
             }).forEachOrdered((query) -> {
                 try{
-                    STMT.execute(query);
+                    sendQuery(query).close();
                     if (showMesgSys) System.out.println(query);
                 }
                 catch(SQLException ex){
@@ -86,7 +93,7 @@ public class TableTreeElementsComposition_MySQL {
                 return query;
             }).forEachOrdered((query) -> {
                 try{
-                    STMT.execute(query);
+                    sendQuery(query).close();
                     if (showMesgSys) System.out.println(query);
                 }
                 catch(SQLException ex){
@@ -95,29 +102,36 @@ public class TableTreeElementsComposition_MySQL {
             });
         }
     }
+    /*
     public static <G extends IInventariable> void delete(G dto){
         String query = QUERYDELETE;
         query = query + "`ID` = "+String.valueOf(dto.getID());
         WindowConsole.print(query+"\n");
         try {
-            STMT.execute(query);
+            sendQuery(query).close();
             if (showMesgSys) System.out.println(query);
         }
         catch (SQLException ex){
             SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
-    
-    private static final Statement STMT                 = generalController.DB.getStatement();
+    */
+
+    private static final String JDBC_DRIVER = generalController.DB.getDriver();
+    private static final String JDBC_DB_URL = generalController.DB.getDbUrl();
+    private static final String JDBC_USER = generalController.DB.getUser();
+    private static final String JDBC_PASS = generalController.DB.getPass();
     private static final String    DBNAME               = generalController.DB.getDBName();
     private static final String    TABLENAME            = "treeelementscomposition";
     private static final String    QUERYSELECTFROM      = "SELECT * FROM "+TABLENAME+";";
     private static final String    QUERYCREATETABLE     = "CREATE TABLE "+TABLENAME+"";
     private static final String    QUERYINSERTINTO      = "INSERT INTO "+TABLENAME+" ";
     private static final String    QUERYUPDATESET       = "UPDATE "+TABLENAME+" SET ";
-    private static final String    QUERYDELETE          = "DELETE FROM "+TABLENAME+" WHERE ";
+    //private static final String    QUERYDELETE          = "DELETE FROM " +
+    //            ""+TABLENAME+" WHERE ";
+    private static final String MESS_OK = "Menu Creado";
         
-    private static String createTable(){
+    private static void createTable(){
         String query = QUERYCREATETABLE.concat(" ( "
             + "ID serial, "
             + "Container integer REFERENCES "+TableTreeElements_PostgreSQL.getTableName()+"(ID),"
@@ -127,46 +141,43 @@ public class TableTreeElementsComposition_MySQL {
             + "PRIMARY KEY (ID, Container, Contained));");
         WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED \n");
         try {
-            STMT.execute(query);
+            sendQuery(query).close();
             if (showMesgSys) System.out.println(query);
         } catch (SQLException ex){
             SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
-        return query;
     }
     
     private static ResultSet getComposicionesList() throws SQLException{
-        ResultSet rs = null;
+        ResultSet resultSet;
         String query = QUERYSELECTFROM, rs_ID;
-        boolean exist, booleanquery;
-        booleanquery = STMT.execute(query);
+        resultSet = sendQuery(query);
         if (showMesgSys) System.out.println(query);
-        if (booleanquery) {
-            rs = STMT.getResultSet();
-            while (rs.next()){ 
-                rs_ID = String.valueOf(rs.getInt("Container"));
+        if (resultSet!=null) {
+            while (resultSet.next()){
+                rs_ID = String.valueOf(resultSet.getInt("Container"));
                 if (showMesgSys) System.out.println("ID: "+rs_ID);
                 switch(rs_ID.charAt(0)){
                     case '1':
-                        setIInventariable((IngredienteDTO) generalController.getProduct(rs.getInt("Container")),getCopyOf(String.valueOf(rs.getInt("Contained")),rs.getInt("Quantity")));
+                        setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
                         break;
                     case '2':        
-                        setIInventariable((SubProductoDTO) generalController.getProduct(rs.getInt("Container")),getCopyOf(String.valueOf(rs.getInt("Contained")),rs.getInt("Quantity")));
+                        setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
                         break;
                     case '3':
-                        setIInventariable((ProductoDTO) generalController.getProduct(rs.getInt("Container")),getCopyOf(String.valueOf(rs.getInt("Contained")),rs.getInt("Quantity")));
+                        setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
                         break;
                     case '4':
-                        setIInventariable((DeLaCartaDTO) generalController.getProduct(rs.getInt("Container")),getCopyOf(String.valueOf(rs.getInt("Contained")),rs.getInt("Quantity")));
+                        setIInventariable( generalController.getProduct(resultSet.getInt("Container")),getCopyOf(String.valueOf(resultSet.getInt("Contained")),resultSet.getInt("Quantity")));
                         break;
                 }
             }   
             if (showMesgSys) System.out.println(MESS_OK);
         }
-        return rs;
+        return resultSet;
     }
     
-    public static IInventariable getCopyOf(String id_String, int quantity){
+    private static IInventariable getCopyOf(String id_String, int quantity){
         IInventariable r=null;
         switch (id_String.charAt(0)){
             case '1':
@@ -182,15 +193,17 @@ public class TableTreeElementsComposition_MySQL {
                 r = new DeLaCartaDTO((DeLaCartaDTO) generalController.getProduct(Integer.parseInt(id_String)));
                 break;
         }
-        r.setCantidad(quantity);
+        if (r != null) {
+            r.setCantidad(quantity);
+        }
         if(showMesgSys) System.out.println("Copy Created: "+r);
         return r;
     }
     
-    public static void setIInventariable(IInventariable container, IInventariable contained){
+    private static void setIInventariable(IInventariable container, IInventariable contained){
         if(showMesgSys) System.out.println("Container: "+container+" <- Contained: "+contained);
         int l = (int) floor(log10(contained.getID()));
-        int first = (int) (contained.getID()/(int)pow(10,l));
+        int first = contained.getID()/(int)pow(10,l);
         switch (first){
             case 1: 
                 ((IRetainerIngrediente) container).addToIngredienteList((IngredienteDTO) contained);
@@ -205,6 +218,37 @@ public class TableTreeElementsComposition_MySQL {
                 ((IRetainerDeLaCarta) container).addToDeLaCartaList((DeLaCartaDTO) contained);
                 break;
         }
+    }
+
+    private static ResultSet sendQuery(String query){
+        ResultSet resultSet = null;
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+            resultSet = statement.getResultSet();
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
+        }
+        return resultSet;
     }
 
 }

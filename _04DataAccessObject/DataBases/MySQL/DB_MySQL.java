@@ -5,12 +5,6 @@
  */
 package _04DataAccessObject.DataBases.MySQL;
 
-/*
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-*/
 import java.sql.*;
 import _03Model.Facility.Accounting.Bill;
 import _03Model.ConfigurationDTO;
@@ -37,6 +31,10 @@ public class DB_MySQL implements IDataBase{
     
     @Override public Statement  getStatement()                      { return STMT;                                                                  }
     @Override public String     getDBName()                         { return DBNAME;                                                                }
+    String               getDbUrl() { return GESTORLOCATION; }
+    String               getDriver() { return DRIVER; }
+    String               getUser() { return DBUSER; }
+    String               getPass() { return DBPASS; }
     
     @Override public void       updateConfigurationToServer()       { TableConfiguration_MySQL.updateConfigurationToServer();                  }
     @Override public void       updateConfigurationToServer(int i)  { TableConfiguration_MySQL.updateConfigurationToServer(i);                 }
@@ -80,19 +78,22 @@ public class DB_MySQL implements IDataBase{
 //******************************************************************************
 //********************************** PRIVATES **********************************    
     private static final Statement  STMT                =   createStatement();
+    private static final String     DRIVER              =   "com.mysql.jdbc.Driver";
     private static final String     DBNAME              =   "thepanera";
     private static final String     DBUSER              =   "root";
     private static final String     DBPASS              =   "moi050391";
     private static final String     GESTORLOCATION      =   "jdbc:mysql://localhost/?useSSL=false";
     private static final String     DBLOCATION          =   "jdbc:mysql://localhost/"+DBNAME+"?useSSL=false";
-    private static final String     DBACCESS            =   "user=root&password=moi050391";
+ // private static final String     DBACCESS            =
+ // "user=root&password=moi050391";
     private static final String     QUERYCREATEDB       =   "CREATE DATABASE "+DBNAME;
-    private static final String     QUERYCREATETABLE    =   "CREATE TABLE `"+DBNAME+"`.";
+ // private static final String     QUERYCREATETABLE    =
+ // "CREATE TABLE " +"`"+DBNAME+"`.";
     
     private static Statement createStatement(){
         Statement r_stmt;
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName(DRIVER);
         } catch (ClassNotFoundException ex) {
             SurveillanceReport.generic(Thread.currentThread().getStackTrace(), ex);
         }

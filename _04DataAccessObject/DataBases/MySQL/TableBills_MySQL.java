@@ -14,12 +14,13 @@ import _03Model.Facility.ProductsAndSupplies.ProductoDTO;
 import _03Model.Facility.ProductsAndSupplies.SubProductoDTO;
 import _02Controller.ProgramIntegritySurveillance.SurveillanceReport;
 import _01View.WindowConsole;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
+import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
+
 import _04DataAccessObject.generalController;
 
 /**
@@ -28,20 +29,23 @@ import _04DataAccessObject.generalController;
  */
 public class TableBills_MySQL {
  public static boolean showMesgSys = false;
-    public static final String MESS_OK = "Sistema de Facturas Cargado desde la DB";
+    //public static final String MESS_OK = "Sistema de Facturas Cargado desde
+    // la DB";
        
     
-    public static void setFacturaDTO(Bill bill){
+    static void setFacturaDTO(Bill bill){
         facturaDTO = bill;
     }
-    public static Bill getFacturaDTO(){
+    static Bill getFacturaDTO(){
         getAndLoadDayBills();
         return facturaDTO;
     }
-            
+
+    /*
     public static void actualize(){
      
     }
+    */
     
     public static void insert(Bill dto){
         String query = QUERYINSERTINTO+TABLENAME;
@@ -51,14 +55,17 @@ public class TableBills_MySQL {
         query += dto.getIdentifier()+ "', ";
         query += String.valueOf(dto.getTurno())+ ", ";
         query += dto.getConsumo()+ ")";
-        try{
-            STMT.execute(query);
+        try {
+            sendQuery(query).close();
             if (showMesgSys) System.out.println(query);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } catch(NullPointerException ex) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),ex);
         }
-        catch(SQLException ex){
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
-        }
-        dto.getProductoList().stream().map((producto) -> {            
+        dto.getProductoList().stream().map((producto) -> {
             String query2 = QUERYINSERTINTO+TABLECONTENTNAME;
             query2 += " (bill, element, quantity, price) VALUES (";
             query2 += dto.getID() + ", ";
@@ -68,24 +75,31 @@ public class TableBills_MySQL {
             return query2;
         }).forEachOrdered((query2) -> {
             try{
-                STMT.execute(query2);
+                sendQuery(query2).close();
                 if (showMesgSys) System.out.println(query2);
             }
             catch(SQLException ex){
-                SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query2);
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace()
+                                ,ex,query2);
             }
         });     
     }
-        
+
+    private static final String JDBC_DRIVER = generalController.DB.getDriver();
+    private static final String JDBC_DB_URL = generalController.DB.getDbUrl();
+    private static final String JDBC_USER = generalController.DB.getUser();
+    private static final String JDBC_PASS = generalController.DB.getPass();
     private static Bill              facturaDTO;
-    private static final Statement STMT                 = generalController.DB.getStatement();
     private static final String    DBNAME               = generalController.DB.getDBName();
     private static final String    TABLENAME            = "bills";
     private static final String    TABLECONTENTNAME     = "billsxinventory";
     private static final String    QUERYSELECTFROM      = "SELECT * FROM ";
     private static final String    QUERYCREATETABLE     = "CREATE TABLE ";
     private static final String    QUERYINSERTINTO      = "INSERT INTO "; //VALUES (STR_TO_DATE('01/05/2010', '%m/%d/%Y'));
-    private static final String    QUERYUPDATE          = "UPDATE `"+TABLENAME+"` SET ";
+    //private static final String    QUERYUPDATE          = "UPDATE " +
+    //        "`"+TABLENAME+"` SET ";
 
     
     private static void getAndLoadDayBills(){
@@ -127,7 +141,7 @@ public class TableBills_MySQL {
                         + "Consumo integer,\n"
                         + "PRIMARY KEY (ID));");
         try {
-            STMT.execute(query);
+            sendQuery(query).close();
             WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED.\n");
         }
         catch (SQLException ex){
@@ -141,7 +155,7 @@ public class TableBills_MySQL {
                         + "price integer, "
                         + "PRIMARY KEY (ID));");
         try {
-            STMT.execute(query);
+            sendQuery(query).close();
             WindowConsole.print("          ... Creationg of Table \""+TABLECONTENTNAME+"\" CREATED.\n");
         }
         catch (SQLException ex){
@@ -151,15 +165,14 @@ public class TableBills_MySQL {
     
     private static void createTodayBillList(String query) throws SQLException{
         Bill aux = null;
-        STMT.execute(query);
         if (showMesgSys)    System.out.println(query);
-        ResultSet rs = STMT.getResultSet();     
-        while(rs.next()){
-            int     rs_ID = rs.getInt("ID");
-            String  rs_identifier = rs.getString("Identifier");
-            int     turno = rs.getInt("Turno");
-            Calendar rs_date = Calendar.getInstance(); rs_date.setTime(rs.getTimestamp("FechaHora"));
-            double  rs_duracion = rs.getDouble("TiempoPermanencia_Min")*60000;
+        ResultSet resultSet = sendQuery(query);
+        while(resultSet.next()){
+            int     rs_ID = resultSet.getInt("ID");
+            String  rs_identifier = resultSet.getString("Identifier");
+            int     turno = resultSet.getInt("Turno");
+            Calendar rs_date = Calendar.getInstance(); rs_date.setTime(resultSet.getTimestamp("FechaHora"));
+            double  rs_duracion = resultSet.getDouble("TiempoPermanencia_Min")*60000;
             if (aux == null) {
                 facturaDTO = new Bill(rs_ID,turno,rs_identifier,rs_date,rs_duracion);
                 aux = facturaDTO;
@@ -168,27 +181,18 @@ public class TableBills_MySQL {
                 aux.setDown(new Bill(rs_ID,turno,rs_identifier,rs_date,rs_duracion));
                 aux = aux.getDown();
             }
-            //if (showMesgSys) System.out.print("\nIndividual:"+facturaDTO+'\n');            
         }
+        try{
+            resultSet.close();
+        }catch (NullPointerException ex){
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),ex);
+        }
+
         if (showMesgSys)    System.out.println("\n\nFacturas Del Dia\n"+facturaDTO);
     }
-    
-    public static void insertContentInBill(Bill aux){
-        String query = QUERYSELECTFROM+TABLECONTENTNAME+" WHERE bill="+aux.getID()+";";
-        try{
-            STMT.execute(query);
-            if (showMesgSys)    System.out.println(query);
-            ResultSet rs = STMT.getResultSet();
-            while (rs.next()){
-                aux.getProductoList().add((ISellable) getCopyOf(String.valueOf(rs.getInt("element")),rs.getInt("quantity")));
-            }
-        }
-        catch (SQLException ex1){
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,query);
-        }
-    }
-    
-    public static IInventariable getCopyOf(String id_String, int quantity){
+
+    private static IInventariable getCopyOf(String id_String, int quantity){
         IInventariable r=null;
         switch (id_String.charAt(0)){
             case '1':
@@ -204,9 +208,65 @@ public class TableBills_MySQL {
                 r = new DeLaCartaDTO((DeLaCartaDTO) generalController.getProduct(Integer.parseInt(id_String)));
                 break;
         }
-        r.setCantidad(quantity);
+        Objects.requireNonNull(r).setCantidad(quantity);
         if(showMesgSys) System.out.println("Copy Created: "+r);
         return r;
     }
-    
+
+    private static void insertContentInBill(Bill aux){
+        ResultSet resultSet = null;
+        String query = QUERYSELECTFROM+TABLECONTENTNAME+" WHERE bill="+aux.getID()+";";
+        try{
+            if (showMesgSys)    System.out.println(query);
+            resultSet = sendQuery(query);
+            while (resultSet.next()){
+                aux.getProductoList().add((ISellable) getCopyOf(String.valueOf(resultSet.getInt("element")),resultSet.getInt("quantity")));
+            }
+        }
+        catch (SQLException ex1){
+            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex1,query);
+        }
+        finally {
+            try{
+                if (resultSet != null) {
+                    resultSet.close();
+                }
+            }catch (NullPointerException ex){
+                SurveillanceReport.generic(Thread.currentThread().getStackTrace(),ex);
+            } catch (SQLException e) {
+                SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),e,query);
+            }
+        }
+    }
+
+    private static ResultSet sendQuery(String query){
+        ResultSet resultSet = null;
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+            resultSet = statement.getResultSet();
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
+        }
+        return resultSet;
+    }
 }

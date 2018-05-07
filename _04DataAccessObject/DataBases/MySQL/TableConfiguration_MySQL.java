@@ -8,9 +8,9 @@ package _04DataAccessObject.DataBases.MySQL;
 import _03Model.ConfigurationDTO;
 import _02Controller.ProgramIntegritySurveillance.SurveillanceReport;
 import _01View.WindowConsole;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+
+import java.sql.*;
+
 import _04DataAccessObject.generalController;
 
 /**
@@ -21,19 +21,24 @@ public class TableConfiguration_MySQL {
     
     public static boolean showMesgSys = false;
     
-    public static boolean getAndLoadConfigurationFromServer(){
-        ResultSet rs; 
+    static boolean getAndLoadConfigurationFromServer(){
+        boolean r = false;
+        ResultSet resultSet = null;
+        String query = QUERYSELECTFROM;
         WindowConsole.print("          Atempting to load configuration from server... \n");
         try {
-            if (showMesgSys) System.out.println(QUERYSELECTFROM);
-            if (STMT.execute(QUERYSELECTFROM)) {
-                rs = STMT.getResultSet();
-                while (rs.next()){ 
-                    ConfigurationDTO.setConfigurationValue(rs.getString("Description"),rs.getDouble("Value")); 
-                }   
+            if (showMesgSys) System.out.println(query);
+            resultSet=sendQuery(query);
+            if (resultSet!=null) {
+                while (resultSet.next()) {
+                    ConfigurationDTO
+                            .setConfigurationValue(
+                                    resultSet.getString("Description"),
+                                    resultSet.getDouble("Value"));
+                }
             }
             WindowConsole.print("          ... Configuration from server, LOADED.\n");
-            return true; 
+            r = true;
         }   
         catch (SQLException ex){
             if (ex.getErrorCode()!=0 && ex.getSQLState().equals("42S02")) {
@@ -43,35 +48,44 @@ public class TableConfiguration_MySQL {
                 return getAndLoadConfigurationFromServer();
             }
             else{
-                String query = QUERYSELECTFROM;
                 SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
             }
+        } finally {
+            try {
+                if (resultSet!=null)
+                    resultSet.close();
+            } catch (SQLException e) {
+                SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),e,query);
+            }
         }
-        return false;
+        return r;
     }
        
-    public static void updateConfigurationToServer(){
+    static void updateConfigurationToServer(){
         for (int i=0; i<ConfigurationDTO.size(); i++){
             updateConfigurationToServer(i);
         }
     }
-    public static void updateConfigurationToServer(int i){
+    static void updateConfigurationToServer(int i){
         String query = QUERYINSERTINTO;
-        try{               
-            query += "(Description, Value) VALUES (";
-            query += "'" + ConfigurationDTO.getIdentifier(i) + "', ";
-            query += "'" + ConfigurationDTO.getValue(i)+ "') ";     
-            query += "ON DUPLICATE KEY UPDATE ";
-            query += "Value = "+ConfigurationDTO.getValue(i)+";";
-            STMT.execute(query);
+        query += "(Description, Value) VALUES (";
+        query += "'" + ConfigurationDTO.getIdentifier(i) + "', ";
+        query += "'" + ConfigurationDTO.getValue(i)+ "') ";
+        query += "ON DUPLICATE KEY UPDATE ";
+        query += "Value = "+ConfigurationDTO.getValue(i)+";";
+        try{
+            sendQuery(query).close();
             if (showMesgSys) System.out.println(query);
-        }
-        catch (SQLException ex){
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+        } catch (SQLException ex){
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
     }
-    
-    private static final Statement STMT             = generalController.DB.getStatement();
+
+    private static final String JDBC_DRIVER = generalController.DB.getDriver();
+    private static final String JDBC_DB_URL = generalController.DB.getDbUrl();
+    private static final String JDBC_USER = generalController.DB.getUser();
+    private static final String JDBC_PASS = generalController.DB.getPass();
     private static final String    DBNAME           = generalController.DB.getDBName();
     private static final String    TABLENAME        = "configuration";
     private static final String    QUERYSELECTFROM  = "SELECT * FROM "+TABLENAME+" ;";
@@ -84,15 +98,47 @@ public class TableConfiguration_MySQL {
                 + "Value DOUBLE, \n"
                 + "PRIMARY KEY (Description));");
         try {
-            STMT.execute(query);
+            sendQuery(query).close();
             if (showMesgSys) System.out.println(query);
             WindowConsole.print("          ... Creationg of Table \""+TABLENAME+"\" CREATED.\n");
             WindowConsole.print("          Attempting to populate Table->\""+TABLENAME+"\" in DB->\""+DBNAME+"\"... \n");
             updateConfigurationToServer();
             WindowConsole.print("          ... Initial data of Table \""+TABLENAME+"\" INSERTED.\n");
-        } catch (SQLException ex) {
-            SurveillanceReport.reportSQL(Thread.currentThread().getStackTrace(),ex,query);
+        } catch (SQLException ex){
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),ex,query);
         }
+    }
+
+    private static ResultSet sendQuery(String query){
+        ResultSet resultSet = null;
+        Statement statement = null;
+        try{
+            Class.forName(JDBC_DRIVER);
+            Connection connection =
+                    DriverManager
+                            .getConnection(JDBC_DB_URL,JDBC_USER,JDBC_PASS);
+            statement = connection.createStatement();
+            statement.execute(query);
+            resultSet = statement.getResultSet();
+        } catch (ClassNotFoundException e) {
+            SurveillanceReport
+                    .generic(Thread.currentThread().getStackTrace(),e);
+        } catch (SQLException e) {
+            SurveillanceReport
+                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
+        } finally {
+            try{
+                if (statement != null){
+                    statement.close();
+                }
+            } catch (SQLException e) {
+                SurveillanceReport
+                        .reportSQL(
+                                Thread.currentThread().getStackTrace(),e,query);
+            }
+        }
+        return resultSet;
     }
     
 }

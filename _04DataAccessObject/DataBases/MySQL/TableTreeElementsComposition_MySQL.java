@@ -5,26 +5,15 @@
  */
 package _04DataAccessObject.DataBases.MySQL;
 
-import _04DataAccessObject.DataBases.PostgreSQL.TableTreeElements_PostgreSQL;
-import _03Model.Facility.ProductsAndSupplies.Inventory;
-import _03Model.Facility.ProductsAndSupplies.DeLaCartaDTO;
-import _03Model.Facility.ProductsAndSupplies.IInventariable;
-import _03Model.Facility.ProductsAndSupplies.IRetainerDeLaCarta;
-import _03Model.Facility.ProductsAndSupplies.IRetainerIngrediente;
-import _03Model.Facility.ProductsAndSupplies.IRetainerProducto;
-import _03Model.Facility.ProductsAndSupplies.IRetainerSubProducto;
-import _03Model.Facility.ProductsAndSupplies.IngredienteDTO;
-import _03Model.Facility.ProductsAndSupplies.ProductoDTO;
-import _03Model.Facility.ProductsAndSupplies.SubProductoDTO;
-import _02Controller.ProgramIntegritySurveillance.SurveillanceReport;
 import _01View.WindowConsole;
-import static java.lang.Math.floor;
-import static java.lang.Math.log10;
-import static java.lang.Math.pow;
+import _02Controller.ProgramIntegritySurveillance.SurveillanceReport;
+import _03Model.Facility.ProductsAndSupplies.*;
+import _04DataAccessObject.DataBases.PostgreSQL.TableTreeElements_PostgreSQL;
+import _04DataAccessObject.generalController;
 
 import java.sql.*;
 
-import _04DataAccessObject.generalController;
+import static java.lang.Math.*;
 
 /**
  *
@@ -205,8 +194,8 @@ public class TableTreeElementsComposition_MySQL {
         }
         if (showMesgSys) System.out.println(query);
     }
-    
-    private static ResultSet getComposicionesList() {
+
+    private static ResultSet getComposicionesList() throws SQLException {
         String query = QUERYSELECTFROM, rs_ID;
         ResultSet resultSet = null;
         Statement statement = null;
@@ -243,9 +232,6 @@ public class TableTreeElementsComposition_MySQL {
         } catch (ClassNotFoundException e) {
             SurveillanceReport
                     .generic(Thread.currentThread().getStackTrace(),e);
-        } catch (SQLException e) {
-            SurveillanceReport
-                    .reportSQL(Thread.currentThread().getStackTrace(),e,query);
         } finally {
             try{
                 if (statement != null){

@@ -14,7 +14,7 @@ import javax.print.attribute.standard.PrinterName;
 
 
 //-- PointOfServicePrinter.java
-//------------------------
+//------------------------------------------------------------------------------
 
 public class PointOfServicePrinter {
     public static boolean showMesgSys = false;
